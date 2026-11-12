@@ -3,7 +3,7 @@
 ![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Version](https://img.shields.io/badge/version-2.6.0-green.svg)
 ![Tests](https://img.shields.io/badge/tests-1746%20passing-brightgreen.svg)
-![License](https://img.shields.io/badge/license-proprietary-red.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > **v2.6.0** - A professional, autonomous AI engineer CLI powered by local LLMs for GitHub automation, code generation, and multi-agent orchestration.
 
@@ -90,7 +90,7 @@ We are building the future of AI-native engineering. If you have ideas for impro
 
 ## 📄 License
 
-See repository for license details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 *Built with ❤️ by [JLWestSr](https://github.com/jlwestsr)*

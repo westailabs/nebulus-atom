@@ -7,6 +7,7 @@ name = "nebulus-atom"
 version = "0.1.0"
 description = "A professional, autonomous AI engineer CLI."
 readme = "README.md"
+license = {text = "MIT"}
 authors = [
   { name = "J.L. West", email = "jlwestsr@example.com" },
 ]
