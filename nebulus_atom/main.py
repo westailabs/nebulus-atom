@@ -11,9 +11,139 @@ os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 from nebulus_atom.commands.overlord_commands import overlord_app
+from nebulus_atom.commands.queue_commands import queue_app
+from nebulus_atom.commands.dispatch_commands import dispatch_app
+from nebulus_atom.commands.focus_commands import focus_app
 
 app = typer.Typer(invoke_without_command=True)
 app.add_typer(overlord_app, name="overlord")
+app.add_typer(queue_app, name="queue")
+app.add_typer(dispatch_app, name="dispatch")
+app.add_typer(focus_app, name="focus")
+
+# --- Mirror subcommand group ---
+mirror_app = typer.Typer(help="Manage bare-clone mirrors of ecosystem repos.")
+app.add_typer(mirror_app, name="mirror")
+
+
+@mirror_app.command("init")
+def mirror_init(
+    project: Optional[str] = typer.Option(
+        None, "--project", "-p", help="Init a single project mirror"
+    ),
+) -> None:
+    """Initialize bare-clone mirrors for ecosystem repos."""
+    from nebulus_swarm.overlord.mirrors import MirrorManager
+    from nebulus_swarm.overlord.registry import load_config
+
+    console = Console()
+    try:
+        config = load_config()
+    except ValueError as e:
+        console.print(f"[red]Config error: {e}[/red]")
+        return
+
+    if not config.projects:
+        console.print("[yellow]No projects registered.[/yellow]")
+        return
+
+    mgr = MirrorManager(config)
+
+    if project:
+        if project not in config.projects:
+            console.print(f"[red]Unknown project: {project}[/red]")
+            return
+        ok = mgr.init_project(project)
+        status = "[green]done[/green]" if ok else "[red]failed[/red]"
+        console.print(f"Mirror init {project}: {status}")
+    else:
+        results = mgr.init_all()
+        for name, ok in results.items():
+            status = "[green]done[/green]" if ok else "[red]failed[/red]"
+            console.print(f"  {name}: {status}")
+
+
+@mirror_app.command("sync")
+def mirror_sync(
+    project: Optional[str] = typer.Option(
+        None, "--project", "-p", help="Sync a single project mirror"
+    ),
+) -> None:
+    """Fetch updates for ecosystem mirror clones."""
+    from nebulus_swarm.overlord.mirrors import MirrorManager
+    from nebulus_swarm.overlord.registry import load_config
+
+    console = Console()
+    try:
+        config = load_config()
+    except ValueError as e:
+        console.print(f"[red]Config error: {e}[/red]")
+        return
+
+    if not config.projects:
+        console.print("[yellow]No projects registered.[/yellow]")
+        return
+
+    mgr = MirrorManager(config)
+
+    if project:
+        if project not in config.projects:
+            console.print(f"[red]Unknown project: {project}[/red]")
+            return
+        ok = mgr.sync_project(project)
+        status = "[green]done[/green]" if ok else "[red]failed[/red]"
+        console.print(f"Mirror sync {project}: {status}")
+    else:
+        results = mgr.sync_all()
+        for name, ok in results.items():
+            status = "[green]done[/green]" if ok else "[red]failed[/red]"
+            console.print(f"  {name}: {status}")
+
+
+@mirror_app.command("status")
+def mirror_status() -> None:
+    """Show the state of all ecosystem mirror clones."""
+    from rich.table import Table
+
+    from nebulus_swarm.overlord.mirrors import MirrorManager
+    from nebulus_swarm.overlord.registry import load_config
+
+    console = Console()
+    try:
+        config = load_config()
+    except ValueError as e:
+        console.print(f"[red]Config error: {e}[/red]")
+        return
+
+    if not config.projects:
+        console.print("[yellow]No projects registered.[/yellow]")
+        return
+
+    mgr = MirrorManager(config)
+    states = mgr.status()
+
+    table = Table(title="Mirror Status")
+    table.add_column("Project", style="bold")
+    table.add_column("Exists")
+    table.add_column("Last Fetch")
+    table.add_column("Refs")
+
+    for name, state in states.items():
+        if state.exists:
+            exists_str = "[green]yes[/green]"
+            fetch_str = (
+                state.last_fetch.strftime("%Y-%m-%d %H:%M")
+                if state.last_fetch
+                else "[dim]unknown[/dim]"
+            )
+            refs_str = str(state.ref_count)
+        else:
+            exists_str = "[red]no[/red]"
+            fetch_str = "-"
+            refs_str = "-"
+        table.add_row(name, exists_str, fetch_str, refs_str)
+
+    console.print(table)
 
 
 @app.callback()
@@ -265,6 +395,137 @@ def audit(
 
     else:
         console.print(f"[red]Unknown action: {action}. Use 'verify' or 'export'.[/red]")
+
+
+@app.command("orchestrate")
+def orchestrate(
+    goal: Optional[List[str]] = typer.Argument(
+        None, help="Goal or task description to orchestrate"
+    ),
+    template: str = typer.Option(
+        "build-feature",
+        "--template",
+        "-t",
+        help="Workflow template to use (build-feature, fix-bug, research-and-draft)",
+    ),
+    list_templates_flag: bool = typer.Option(
+        False, "--list-templates", "-l", help="List available workflow templates"
+    ),
+    workflow_file: Optional[str] = typer.Option(
+        None, "--workflow", "-w", help="Path to custom workflow YAML file"
+    ),
+):
+    """
+    Run a multi-step workflow using the orchestration engine.
+
+    Examples:
+      atom orchestrate "Add JWT authentication to the API"
+      atom orchestrate "Login returns 500 on special chars" --template fix-bug
+      atom orchestrate --list-templates
+      atom orchestrate "research topic" --template research-and-draft
+    """
+    import asyncio
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+
+    console = Console()
+
+    # List templates and exit
+    if list_templates_flag:
+        from nebulus_atom.orchestrator.loader import list_templates, load_workflow
+
+        available = list_templates()
+        if not available:
+            console.print("[yellow]No templates found.[/yellow]")
+            return
+        table = Table(title="Available Workflow Templates", show_header=True)
+        table.add_column("Name", style="cyan")
+        table.add_column("Description")
+        table.add_column("Steps")
+        for name in available:
+            try:
+                wf = load_workflow(name)
+                table.add_row(
+                    name, wf.description[:80], ", ".join(s.id for s in wf.steps)
+                )
+            except Exception:
+                table.add_row(name, "(error loading)", "")
+        console.print(table)
+        return
+
+    if not goal:
+        console.print(
+            "[red]Provide a goal, e.g.: atom orchestrate 'build a REST API'[/red]"
+        )
+        raise typer.Exit(1)
+
+    goal_text = " ".join(goal)
+
+    async def run():
+        from nebulus_atom.orchestrator.engine import WorkflowEngine
+        from nebulus_atom.orchestrator.loader import load_workflow
+        from nebulus_atom.controllers.agent_controller import AgentController
+        from nebulus_atom.views.cli_view import CLIView
+
+        # Bootstrap enough of the agent to get an OpenAI service
+        view = CLIView()
+        controller = AgentController(view=view)
+        # _openai is initialized in AgentController.__init__
+        engine = WorkflowEngine(controller._openai)
+
+        # Load workflow
+        source = workflow_file or template
+        try:
+            workflow = load_workflow(source)
+        except FileNotFoundError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(1)
+        except ValueError as e:
+            console.print(f"[red]Invalid workflow: {e}[/red]")
+            raise typer.Exit(1)
+
+        console.print(
+            Panel(
+                f"[bold cyan]Workflow:[/bold cyan] {workflow.name}\n"
+                f"[bold cyan]Goal:[/bold cyan] {goal_text}\n"
+                f"[bold cyan]Steps:[/bold cyan] {' → '.join(s.id for s in workflow.steps)}",
+                title="🔄 Orchestrating",
+            )
+        )
+
+        job = await engine.submit_and_wait(workflow, inputs={"goal": goal_text})
+
+        # Display results
+        for step in workflow.steps:
+            result = job.step_results.get(step.id)
+            if not result:
+                continue
+            icon = "✅" if result.status.value == "completed" else "❌"
+            duration = (
+                f" ({result.duration_seconds:.1f}s)" if result.duration_seconds else ""
+            )
+            model = f" [{result.model_used}]" if result.model_used else ""
+            console.print(f"\n{icon} [bold]{step.id}[/bold]{duration}{model}")
+            if result.output:
+                console.print(
+                    Panel(
+                        result.output[:2000]
+                        + ("..." if len(result.output) > 2000 else "")
+                    )
+                )
+            if result.error:
+                console.print(f"[red]Error: {result.error}[/red]")
+
+        status_color = "green" if job.status.value == "completed" else "red"
+        console.print(
+            f"\n[{status_color}]Job {job.status.value}: {job.id}[/{status_color}]"
+        )
+
+    try:
+        asyncio.run(run())
+    except (KeyboardInterrupt, SystemExit):
+        pass
 
 
 if __name__ == "__main__":

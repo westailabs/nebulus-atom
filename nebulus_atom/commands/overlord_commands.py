@@ -660,6 +660,61 @@ def _render_memory_entries(entries: list) -> None:
     console.print(table)
 
 
+def _load_queue_for_halt():
+    """Load the work queue for the halt command."""
+    from nebulus_swarm.overlord.work_queue import WorkQueue
+
+    return WorkQueue()
+
+
+@overlord_app.command("halt")
+def halt() -> None:
+    """Emergency stop — cancel all dispatches and stop the daemon."""
+    from nebulus_swarm.overlord.overlord_daemon import OverlordDaemon
+
+    queue = _load_queue_for_halt()
+    halted = 0
+
+    # Cancel dispatched tasks
+    dispatched = queue.list_tasks(status="dispatched")
+    for task in dispatched:
+        try:
+            queue.transition(
+                task.id, "failed", changed_by="human", reason="Halted by user"
+            )
+            halted += 1
+        except Exception as e:
+            console.print(f"[red]Failed to halt {task.id[:8]}: {e}[/red]")
+
+    # Cancel active tasks with locks (in-flight work)
+    active = queue.list_tasks(status="active")
+    for task in active:
+        if task.locked_by:
+            try:
+                queue.transition(
+                    task.id, "failed", changed_by="human", reason="Halted by user"
+                )
+                halted += 1
+            except Exception as e:
+                console.print(f"[red]Failed to halt {task.id[:8]}: {e}[/red]")
+
+    # Stop daemon
+    daemon_stopped = False
+    if OverlordDaemon.check_running():
+        daemon_stopped = OverlordDaemon.stop_daemon(timeout=5.0)
+        if daemon_stopped:
+            console.print("[green]Daemon stopped.[/green]")
+        else:
+            console.print("[red]Failed to stop daemon within timeout.[/red]")
+    else:
+        console.print("[dim]Daemon was not running.[/dim]")
+
+    console.print(
+        f"[bold]Halt complete:[/bold] {halted} task(s) cancelled"
+        + (", daemon stopped" if daemon_stopped else "")
+    )
+
+
 @overlord_app.command("worker")
 def show_worker() -> None:
     """Show Claude Code worker status and configuration."""
@@ -1376,3 +1431,105 @@ def _render_scope(scope: ActionScope, verdict: ScopeVerdict, autonomy: str) -> N
 
     border = "green" if verdict.approved else "red"
     console.print(Panel("\n".join(lines), title="Blast Radius", border_style=border))
+
+
+# --- Budget commands ---
+
+budget_app = typer.Typer(help="Manage cost controls and budget.")
+overlord_app.add_typer(budget_app, name="budget")
+
+
+@budget_app.command("status")
+def budget_status() -> None:
+    """Show current daily budget usage."""
+    from nebulus_swarm.overlord.work_queue import WorkQueue
+
+    queue = WorkQueue()
+    usage = queue.get_daily_usage()
+
+    if not usage:
+        console.print("[dim]No token usage recorded today.[/dim]")
+        return
+
+    ceiling = usage["ceiling_usd"]
+    spent = usage["estimated_cost_usd"]
+    pct = (spent / ceiling * 100) if ceiling > 0 else 0.0
+
+    color = "green" if pct < 80 else "yellow" if pct < 100 else "red"
+
+    table = Table(title="Daily Budget Status")
+    table.add_column("Metric", style="bold")
+    table.add_column("Value", justify="right")
+
+    table.add_row("Date", usage["date"])
+    table.add_row("Input tokens", f"{usage['tokens_input']:,}")
+    table.add_row("Output tokens", f"{usage['tokens_output']:,}")
+    table.add_row("Estimated cost", f"${spent:.4f}")
+    table.add_row("Ceiling", f"${ceiling:.2f}")
+    table.add_row("Usage", f"[{color}]{pct:.1f}%[/{color}]")
+
+    console.print(table)
+
+
+@budget_app.command("set-ceiling")
+def budget_set_ceiling(
+    amount: float = typer.Argument(..., help="Daily ceiling in USD"),
+) -> None:
+    """Set the daily budget ceiling."""
+
+    if amount < 0:
+        console.print("[red]Ceiling must be non-negative.[/red]")
+        return
+
+    console.print(
+        f"[green]Daily ceiling set to ${amount:.2f}[/green]\n"
+        f"[dim]Note: Update overlord.yml cost_controls.daily_ceiling_usd "
+        f"to persist this value.[/dim]"
+    )
+
+
+@budget_app.command("history")
+def budget_history(
+    days: int = typer.Option(7, "--days", "-d", help="Number of days to show"),
+) -> None:
+    """Show budget usage history."""
+    from datetime import timedelta
+
+    from nebulus_swarm.overlord.work_queue import WorkQueue
+
+    queue = WorkQueue()
+
+    table = Table(title=f"Budget History (last {days} days)")
+    table.add_column("Date", style="bold")
+    table.add_column("Input", justify="right")
+    table.add_column("Output", justify="right")
+    table.add_column("Cost", justify="right")
+    table.add_column("Ceiling", justify="right")
+    table.add_column("Usage %", justify="right")
+
+    today = datetime.now(timezone.utc).date()
+    found = 0
+
+    for i in range(days):
+        date = (today - timedelta(days=i)).isoformat()
+        usage = queue.get_daily_usage(date)
+        if usage:
+            found += 1
+            ceiling = usage["ceiling_usd"]
+            spent = usage["estimated_cost_usd"]
+            pct = (spent / ceiling * 100) if ceiling > 0 else 0.0
+            color = "green" if pct < 80 else "yellow" if pct < 100 else "red"
+            table.add_row(
+                date,
+                f"{usage['tokens_input']:,}",
+                f"{usage['tokens_output']:,}",
+                f"${spent:.4f}",
+                f"${ceiling:.2f}",
+                f"[{color}]{pct:.1f}%[/{color}]",
+            )
+
+    if found == 0:
+        console.print(f"[dim]No usage data found in the last {days} days.[/dim]")
+        return
+
+    console.print(table)

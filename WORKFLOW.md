@@ -9,7 +9,7 @@ We follow a strict **Gitflow-lite** workflow.
 - **`develop`**: Integration branch for the next release. **All work merges here.**
 
 ### Temporary Branches (Local Only)
-**CRITICAL**: These branches exist **ONLY** on your local machine. You generally do **NOT** push them to nebulus-atom unless working on a long-lived collaborative feature.
+These branches should stay on your local machine until the maintainer approves a push or pull request.
 
 - **`feat/name`**: New features (models, services, UI).
 - **`fix/description`**: Bug fixes.
@@ -18,10 +18,10 @@ We follow a strict **Gitflow-lite** workflow.
 
 ## Workflow Steps
 
-1.  **Start**: Checkout `develop` and pull latest.
+1.  **Start**: Checkout `develop` and pull latest (only when a pull has been approved).
     ```bash
     git checkout develop
-    git pull nebulus-atom develop
+    git pull origin develop
     ```
 2.  **Branch**: Create a specific local branch.
     ```bash
@@ -32,14 +32,14 @@ We follow a strict **Gitflow-lite** workflow.
     git commit -m "feat: add new OpenAI service"
     ```
 4.  **Verify**: Run tests/start app to ensure stability.
-5.  **Merge**: Switch back to `develop` and merge.
+5.  **Merge**: Switch back to `develop` and merge with `--no-ff` after approval.
     ```bash
     git checkout develop
-    git merge feat/my-new-feature
+    git merge --no-ff feat/my-new-feature
     ```
-6.  **Push**: Push **ONLY** `develop`.
+6.  **Push**: Push **only** with explicit authorization, and only `develop` unless asked otherwise.
     ```bash
-    git push nebulus-atom develop
+    git push origin develop
     ```
 7.  **Cleanup**: Delete the local branch.
     ```bash
