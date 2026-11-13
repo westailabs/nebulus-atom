@@ -18,7 +18,7 @@ Nebulus Atom is a privacy-first, self-hosted AI coding assistant and autonomous 
 Nebulus Atom establishes an **AI Collaboration Framework** that ensures human-AI teams work within strict governance, shared context, and professional engineering standards.
 
 ### Core Philosophy
-- **AI-Native Context**: Every project ships with `AI_DIRECTIVES.md`, `CLAUDE.md`, and `GEMINI.md` to ground your AI agent.
+- **AI-Native Context**: Start with `AGENTS.md`. `AI_DIRECTIVES.md`, `WORKFLOW.md`, and `CONTEXT.md` add operational and architectural detail.
 - **Strict Governance**: Prevent AI "shadow logic" and reinvention of existing utilities.
 - **Production-Ready**: Enforces Type Hinting, Google-style docstrings, and 100% logic coverage in tests.
 
@@ -28,7 +28,7 @@ Nebulus Atom establishes an **AI Collaboration Framework** that ensures human-AI
 
 ```bash
 # Clone and install
-git clone git@github.com:jlwestsr/nebulus-atom.git
+git clone git@github.com:westailabs/nebulus-atom.git
 cd nebulus-atom
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -49,10 +49,10 @@ See the [Installation Guide](https://github.com/jlwestsr/nebulus-atom/wiki/Insta
 
 ```text
 .
+├── AGENTS.md              # Instructions for coding agents
 ├── AI_DIRECTIVES.md       # Operational guardrails for AI
-├── CLAUDE.md              # Persona & project instructions
-├── GEMINI.md              # PM communication protocol
 ├── WORKFLOW.md            # Git & development process
+├── CONTEXT.md             # Architectural context
 ├── nebulus_atom/           # Core CLI agent (MVC)
 │   ├── models/             # Data structures
 │   ├── views/              # UI (Rich TUI)
@@ -82,9 +82,9 @@ Nebulus Atom projects enforce the following by default:
 ## 🤝 Contributing
 
 We are building the future of AI-native engineering. If you have ideas for improving agentic governance or swarm intelligence, please:
-1. Fork the repo.
+1. Fork the repo (or work on a local branch).
 2. Create a feature branch off `develop`.
-3. Open a Pull Request.
+3. Merge with `--no-ff`. Keep the branch local until a push or PR is approved.
 
 ---
 
