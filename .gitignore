@@ -104,7 +104,8 @@ htmlcov/
 .nebulus_atom_history
 
 # Other AI tool directories
-.gemini/
+.gemini/*
+!.gemini/settings.json
 .scratchpad/
 .aider/
 .serena/
