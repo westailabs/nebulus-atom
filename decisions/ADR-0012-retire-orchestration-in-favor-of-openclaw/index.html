@@ -1,0 +1,913 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for ai_project">
+      
+      
+        <meta name="author" content="User">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>ADR-0012: Retire nebulus-atom Orchestration in Favor of OpenClaw - ai_project</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-0012-retire-nebulus-atom-orchestration-in-favor-of-openclaw" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ai_project" class="md-header__button md-logo" aria-label="ai_project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai_project
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-0012: Retire nebulus-atom Orchestration in Favor of OpenClaw
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ai_project" class="md-nav__button md-logo" aria-label="ai_project" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai_project
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rules/ai_behavior.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTEXT.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context-and-problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context and Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#considered-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Considered Options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Considered Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-keep-both-federate-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option A: Keep Both — Federate Them
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-keep-both-scope-separate-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option B: Keep Both — Scope-Separate Them
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-c-retire-nebulus-atom-orchestration-slim-to-scanner-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option C: Retire nebulus-atom Orchestration; Slim to Scanner + Graph ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-d-retire-nebulus-atom-entirely" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option D: Retire nebulus-atom Entirely
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Outcome
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision Outcome">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positive-consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positive Consequences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negative-consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative Consequences
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-audit-and-freeze-day-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Audit and Freeze (Day 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-remove-orchestration-components-day-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Remove Orchestration Components (Day 1–2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-build-the-openclaw-skill-day-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Build the OpenClaw Skill (Day 2–3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-validation-day-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Validation (Day 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-communicate-and-document-day-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Communicate and Document (Day 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-retained-in-nebulus-atom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components Retained in nebulus-atom
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-view-before-and-after" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural View: Before and After
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architectural View: Before and After">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-dual-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before (Dual Stack)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-single-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After (Single Stack)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links-and-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links and References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="adr-0012-retire-nebulus-atom-orchestration-in-favor-of-openclaw">ADR-0012: Retire nebulus-atom Orchestration in Favor of OpenClaw</h1>
+<p><strong>Date:</strong> 2026-02-25
+<strong>Status:</strong> Accepted
+<strong>Deciders:</strong> Jason L. West, Sr. (West AI Labs)
+<strong>Technical Story:</strong> OpenClaw has been proven in production as a fully capable AI agent runtime across two instances (Moto on shurtugal-lnx, Cael on nebulus Mac Mini M4 Pro). nebulus-atom's orchestration, autonomy, dispatch, routing, and memory subsystems are now redundant. Maintaining two parallel orchestration stacks is unsustainable and introduces split-brain risk.</p>
+<hr />
+<h2 id="context-and-problem-statement">Context and Problem Statement</h2>
+<p>nebulus-atom was designed as a homegrown AI agent orchestration layer for the Nebulus Stack. Its original scope covered:</p>
+<ol>
+<li><strong>Ecosystem scanner</strong> — walks all 8 Nebulus repos, builds a NetworkX dependency graph</li>
+<li><strong>Autonomy engine</strong> (<code>AutonomyEngine</code>) — decides what to work on without human prompting</li>
+<li><strong>Dispatch engine + task parser</strong> (<code>DispatchEngine</code>, <code>TaskParser</code>) — breaks work into sub-tasks, routes to workers</li>
+<li><strong>Model router</strong> (<code>ModelRouter</code>) — selects Claude/Gemini/etc. per task type and cost envelope</li>
+<li><strong>Proposal manager</strong> (<code>ProposalManager</code>) — human-in-the-loop approval flow for risky changes</li>
+<li><strong>Memory/continuity layer</strong> (<code>MemoryStore</code>) — persists agent state across sessions</li>
+</ol>
+<p>In parallel, <strong>OpenClaw</strong> has been deployed to production and demonstrates feature parity with everything above <em>except</em> items 1 (ecosystem scanner) and 1a (dependency graph). OpenClaw provides:</p>
+<ul>
+<li>Multi-agent orchestration via <code>sessions_spawn</code> + sub-agent API</li>
+<li>Model routing via per-channel <code>openclaw.json</code> config</li>
+<li>Autonomous scheduled execution via <code>HEARTBEAT.md</code></li>
+<li>Human-in-the-loop trust rules via <code>AGENTS.md</code></li>
+<li>Memory/continuity via daily logs, <code>MEMORY.md</code>, and <code>session-state.json</code></li>
+<li>Extensible tool integration via the Skill system</li>
+</ul>
+<p>Maintaining two parallel orchestration implementations — nebulus-atom's Python-based stack and OpenClaw's runtime — is unsustainable. It creates dual maintenance burden, divergent trust models, potential split-brain scenarios when both systems attempt to dispatch work to the same Nebulus services, and confusion about which system is authoritative.</p>
+<hr />
+<h2 id="decision-drivers">Decision Drivers</h2>
+<ul>
+<li><strong>Proven production deployment:</strong> OpenClaw has been running live on two hosts with no critical incidents. nebulus-atom has not yet reached production-equivalent stability.</li>
+<li><strong>Redundancy with no upside:</strong> Dispatch, routing, memory, and approval flow are implemented better in OpenClaw than in nebulus-atom's homegrown equivalents.</li>
+<li><strong>Unique value concentration:</strong> nebulus-atom's only irreplaceable capability is multi-repo topology awareness (ecosystem scanner + dependency graph). Everything else is OpenClaw.</li>
+<li><strong>Operational risk:</strong> Two systems issuing autonomous work orders against the same repos simultaneously is a correctness hazard — last-writer-wins conflicts, duplicate PR creation, contradictory plan execution.</li>
+<li><strong>Skill composability:</strong> OpenClaw's Skill system allows nebulus-atom's remaining scanner/graph capability to be exposed as a read-only analysis tool without any orchestration surface area.</li>
+</ul>
+<hr />
+<h2 id="considered-options">Considered Options</h2>
+<h3 id="option-a-keep-both-federate-them">Option A: Keep Both — Federate Them</h3>
+<p>Run nebulus-atom as a sub-orchestrator beneath OpenClaw. nebulus-atom handles intra-Nebulus dispatching; OpenClaw handles top-level session management.</p>
+<p><strong>Rejected.</strong> Creates a two-tier dispatch model with unclear authority boundaries. Trust rules in <code>AGENTS.md</code> would need to cover both systems. Debugging failures requires understanding two codebases. No clear benefit over Option C.</p>
+<h3 id="option-b-keep-both-scope-separate-them">Option B: Keep Both — Scope-Separate Them</h3>
+<p>nebulus-atom owns Nebulus Stack work. OpenClaw owns external tasks (Discord, email, etc.).</p>
+<p><strong>Rejected.</strong> The Nebulus Stack is the primary workload. Splitting orchestration along this line means OpenClaw has no visibility into the most important work happening in the system. Also, the "Nebulus Stack work" category will grow and spill over, eroding the separation over time.</p>
+<h3 id="option-c-retire-nebulus-atom-orchestration-slim-to-scanner-graph">Option C: Retire nebulus-atom Orchestration; Slim to Scanner + Graph ✅</h3>
+<p>Delete or archive all orchestration/autonomy/dispatch/routing/memory components from nebulus-atom. Retain the ecosystem scanner and dependency graph engine as a read-only library. Expose it to OpenClaw as a Skill.</p>
+<p><strong>Accepted.</strong> Eliminates the redundant surface area entirely. nebulus-atom's unique value is preserved and made <em>more</em> accessible through Skill invocation. OpenClaw becomes the single authoritative orchestration layer across the entire Nebulus Stack.</p>
+<h3 id="option-d-retire-nebulus-atom-entirely">Option D: Retire nebulus-atom Entirely</h3>
+<p>Archive the entire repo.</p>
+<p><strong>Rejected</strong> (for now). The ecosystem scanner and dependency graph are not replicated anywhere else. They provide genuine value for impact analysis before autonomous changes. Retiring the whole repo throws away the one thing nebulus-atom does that OpenClaw cannot.</p>
+<hr />
+<h2 id="decision-outcome">Decision Outcome</h2>
+<p><strong>Chosen option: Option C</strong> — Retire nebulus-atom orchestration components; slim the repo to ecosystem scanner + dependency graph engine.</p>
+<h3 id="positive-consequences">Positive Consequences</h3>
+<ul>
+<li>Single orchestration system in production: OpenClaw</li>
+<li>nebulus-atom becomes a focused, auditable read-only tool with a clear API contract</li>
+<li>OpenClaw gains ecosystem topology awareness via Skill invocation</li>
+<li>No more split-brain risk from dual autonomous dispatch</li>
+<li>Reduced maintenance surface by ~70% of nebulus-atom's codebase</li>
+<li>Trust model is unified: <code>AGENTS.md</code> is the single source of truth for what the agent is allowed to do</li>
+</ul>
+<h3 id="negative-consequences">Negative Consequences</h3>
+<ul>
+<li>Migration work required to remove/archive components (estimated: 2-3 days)</li>
+<li>Any scripts or integrations importing nebulus-atom orchestration internals will break and need updating</li>
+<li>Gantry's <code>overlord_routing_enabled</code> setting will need to be deprecated</li>
+</ul>
+<hr />
+<h2 id="migration-plan">Migration Plan</h2>
+<h3 id="phase-1-audit-and-freeze-day-1">Phase 1: Audit and Freeze (Day 1)</h3>
+<ol>
+<li>
+<p><strong>Freeze nebulus-atom orchestration.</strong> Merge any open PRs. Tag current HEAD as <code>pre-openclaw-migration</code> in git.
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/nebulus-atom
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>tag<span class="w"> </span>pre-openclaw-migration
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>pre-openclaw-migration
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Identify all consumers.</strong> Search across all 8 Nebulus repos for imports of the components being retired:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"nebulus_swarm.overlord\|OverlordService\|overlord_service\|DispatchEngine\|TaskParser\|ModelRouter\|ProposalManager\|MemoryStore\|AutonomyEngine"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>nebulus-core<span class="w"> </span>nebulus-prime<span class="w"> </span>nebulus-edge<span class="w"> </span>nebulus-atom<span class="w"> </span>nebulus-forge<span class="w"> </span>nebulus-gantry<span class="w"> </span>nebulus-mac-mini-4-pro<span class="w"> </span>nebulus-shurtugal-lnx
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Audit <code>gantry</code> config.</strong> Locate and document all occurrences of <code>overlord_routing_enabled</code> in nebulus-gantry config files (YAML, TOML, .env). These must be deprecated in Phase 2.</p>
+</li>
+<li>
+<p><strong>Map active cron jobs and heartbeat tasks</strong> referencing nebulus-atom dispatch endpoints. Document them with their OpenClaw equivalents.</p>
+</li>
+</ol>
+<h3 id="phase-2-remove-orchestration-components-day-12">Phase 2: Remove Orchestration Components (Day 1–2)</h3>
+<p>Delete (or move to <code>archive/</code> subdirectory for reference) the following modules from nebulus-atom:</p>
+<table>
+<thead>
+<tr>
+<th>Module / File</th>
+<th>Reason for Removal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nebulus_swarm/overlord.py</code></td>
+<td>Core orchestration — replaced by OpenClaw <code>sessions_spawn</code></td>
+</tr>
+<tr>
+<td><code>nebulus_swarm/overlord_service.py</code> (<code>OverlordService</code>)</td>
+<td>Service wrapper for orchestration — redundant</td>
+</tr>
+<tr>
+<td><code>nebulus_atom/autonomy/</code> (entire package)</td>
+<td><code>AutonomyEngine</code> — replaced by OpenClaw HEARTBEAT.md loop</td>
+</tr>
+<tr>
+<td><code>nebulus_atom/dispatch/</code> (entire package)</td>
+<td><code>DispatchEngine</code>, <code>TaskParser</code> — replaced by OpenClaw sub-agents</td>
+</tr>
+<tr>
+<td><code>nebulus_atom/routing/</code> (entire package)</td>
+<td><code>ModelRouter</code> — replaced by <code>openclaw.json</code> model routing</td>
+</tr>
+<tr>
+<td><code>nebulus_atom/proposals/</code> (entire package)</td>
+<td><code>ProposalManager</code> — replaced by OpenClaw trust rules in AGENTS.md</td>
+</tr>
+<tr>
+<td><code>nebulus_atom/memory/</code> (entire package)</td>
+<td><code>MemoryStore</code> — replaced by OpenClaw daily logs + session-state.json</td>
+</tr>
+<tr>
+<td>FastAPI routes: <code>/overlord/*</code>, <code>/dispatch/*</code>, <code>/autonomy/*</code></td>
+<td>API surface for retired components</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do not delete:</strong>
+- <code>nebulus_atom/scanner/</code> — ecosystem scanner, retained
+- <code>nebulus_atom/graph/</code> — dependency graph engine, retained
+- <code>nebulus_atom/api/scanner.py</code> — scanner API routes, retained and promoted to primary interface</p>
+<p><strong>Gantry deprecation:</strong>
+- Remove <code>overlord_routing_enabled</code> from nebulus-gantry's routing config
+- Add a deprecation warning log if the key is present: <code>"overlord_routing_enabled is deprecated as of ADR-0012; key ignored"</code>
+- Schedule key removal for the next major nebulus-gantry release</p>
+<h3 id="phase-3-build-the-openclaw-skill-day-23">Phase 3: Build the OpenClaw Skill (Day 2–3)</h3>
+<p>Create <code>~/.openclaw/workspace/skills/nebulus-atom/SKILL.md</code> to expose scanner + graph as an OpenClaw Skill.</p>
+<p>The Skill should provide:
+- <code>scan_ecosystem</code> — trigger a full scan of all Nebulus repos, return dependency graph JSON
+- <code>query_dependencies</code> — given a repo or module, return its upstream/downstream dependents
+- <code>impact_analysis</code> — given a proposed change path, return a risk-ranked list of affected repos</p>
+<p>Skill invocation pattern (example in SKILL.md):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Full ecosystem scan</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>-m<span class="w"> </span>nebulus_atom.scanner.cli<span class="w"> </span>scan<span class="w"> </span>--output<span class="w"> </span>json
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Dependency query</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>python<span class="w"> </span>-m<span class="w"> </span>nebulus_atom.graph.cli<span class="w"> </span>query<span class="w"> </span>--node<span class="w"> </span>nebulus-core<span class="w"> </span>--direction<span class="w"> </span>downstream
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Impact analysis</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>python<span class="w"> </span>-m<span class="w"> </span>nebulus_atom.graph.cli<span class="w"> </span>impact<span class="w"> </span>--changed-files<span class="w"> </span><span class="s2">"nebulus-core/src/shared/config.py"</span>
+</code></pre></div></p>
+<p>The Skill must:
+- Be <strong>read-only</strong> — no writes, no dispatch, no side effects
+- Return structured JSON consumable by OpenClaw tool parsing
+- Log invocations to the OpenClaw daily log for audit trail
+- Document required Python environment and nebulus-atom installation path in SKILL.md</p>
+<h3 id="phase-4-validation-day-3">Phase 4: Validation (Day 3)</h3>
+<ol>
+<li><strong>Run ecosystem scanner</strong> via the new Skill from an OpenClaw session. Verify the dependency graph is complete and accurate.</li>
+<li><strong>Verify Gantry starts cleanly</strong> without <code>overlord_routing_enabled</code> present.</li>
+<li><strong>Verify no import errors</strong> across nebulus-core, nebulus-prime, nebulus-edge, nebulus-forge after removal.</li>
+<li><strong>Run any existing nebulus-atom tests</strong> that cover scanner/graph — these must pass. Tests covering retired components should be deleted or moved to <code>archive/tests/</code>.</li>
+<li><strong>Update nebulus-atom README</strong> to clearly document its new scope: "read-only ecosystem analysis tool."</li>
+</ol>
+<h3 id="phase-5-communicate-and-document-day-3">Phase 5: Communicate and Document (Day 3)</h3>
+<ol>
+<li>Update <code>nebulus-atom/README.md</code> — new scope, new API surface, deprecation notice for removed components</li>
+<li>Update <code>nebulus-gantry</code> docs — remove <code>overlord_routing_enabled</code> from configuration reference</li>
+<li>Post migration summary to West AI Labs internal notes / Discord</li>
+<li>Update <code>MEMORY.md</code> on both OpenClaw instances (Moto, Cael) with note: nebulus-atom is now scanner-only; use <code>nebulus-atom</code> Skill for ecosystem queries</li>
+</ol>
+<hr />
+<h2 id="components-retained-in-nebulus-atom">Components Retained in nebulus-atom</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EcosystemScanner</code></td>
+<td>Walks all 8 Nebulus repos, builds topology map</td>
+<td>CLI + Python API</td>
+</tr>
+<tr>
+<td><code>DependencyGraph</code></td>
+<td>NetworkX-based directed graph of inter-repo/module deps</td>
+<td>Python API + JSON export</td>
+</tr>
+<tr>
+<td><code>ImpactAnalyzer</code></td>
+<td>Answers "what breaks if I change X"</td>
+<td>CLI + Python API</td>
+</tr>
+<tr>
+<td>FastAPI <code>/scan</code> routes</td>
+<td>HTTP interface for scanner (used by OpenClaw Skill)</td>
+<td>REST API</td>
+</tr>
+</tbody>
+</table>
+<p>Everything else is retired.</p>
+<hr />
+<h2 id="architectural-view-before-and-after">Architectural View: Before and After</h2>
+<h3 id="before-dual-stack">Before (Dual Stack)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>OpenClaw (shurtugal-lnx / mac-mini)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  ├── Session management
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  ├── Model routing
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  ├── Heartbeat autonomy
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  ├── Trust / approval
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  └── Memory
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>nebulus-atom (running independently)
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  ├── OverlordService (autonomous dispatch)         ← REDUNDANT
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  ├── AutonomyEngine (decides work autonomously)    ← REDUNDANT
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>  ├── DispatchEngine + TaskParser                   ← REDUNDANT
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  ├── ModelRouter                                   ← REDUNDANT
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>  ├── ProposalManager                               ← REDUNDANT
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>  ├── MemoryStore                                   ← REDUNDANT
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>  ├── EcosystemScanner                              ← UNIQUE VALUE
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>  └── DependencyGraph                               ← UNIQUE VALUE
+</code></pre></div>
+<h3 id="after-single-stack">After (Single Stack)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>OpenClaw (shurtugal-lnx / mac-mini) — AUTHORITATIVE ORCHESTRATOR
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  ├── Session management
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  ├── Model routing (openclaw.json)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  ├── Heartbeat autonomy (HEARTBEAT.md)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  ├── Trust / approval (AGENTS.md)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  ├── Memory (daily logs, MEMORY.md, session-state.json)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  └── Skills
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        └── nebulus-atom Skill ──────────────────────────┐
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>nebulus-atom — READ-ONLY ANALYSIS TOOL                   │
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  ├── EcosystemScanner  ◄──────────────────────────────── ┘
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  └── DependencyGraph
+</code></pre></div>
+<hr />
+<h2 id="links-and-references">Links and References</h2>
+<ul>
+<li>OpenClaw production config: <code>~/.openclaw/workspace/</code> (shurtugal-lnx, mac-mini)</li>
+<li>AGENTS.md trust model: <code>~/.openclaw/workspace/AGENTS.md</code></li>
+<li>HEARTBEAT.md autonomy loop: <code>~/.openclaw/workspace/HEARTBEAT.md</code></li>
+<li>nebulus-gantry overlord setting: see <code>gantry/config/routing.yaml</code> → <code>overlord_routing_enabled</code></li>
+<li><code>OverlordService</code> implementation: <code>nebulus-atom/nebulus_swarm/overlord_service.py</code></li>
+<li><code>nebulus_swarm.overlord</code> module: <code>nebulus-atom/nebulus_swarm/overlord.py</code></li>
+<li>Related ADRs: ADR-0008 (OpenClaw adoption), ADR-0010 (Gantry routing architecture)</li>
+<li>Pre-migration git tag: <code>pre-openclaw-migration</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.expand", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
