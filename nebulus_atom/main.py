@@ -1,5 +1,6 @@
 import asyncio
 import os
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -157,9 +158,10 @@ def main(ctx: typer.Context):
 
 @app.command()
 def start(
-    prompt: list[str] | None = typer.Argument(
-        None, help="Initial prompt to execute immediately"
-    ),
+    prompt: Annotated[
+        list[str] | None,
+        typer.Argument(help="Initial prompt to execute immediately"),
+    ] = None,
     session_id: str = typer.Option("default", help="Session ID for persistence"),
 ):
     """
@@ -399,9 +401,10 @@ def audit(
 
 @app.command("orchestrate")
 def orchestrate(
-    goal: list[str] | None = typer.Argument(
-        None, help="Goal or task description to orchestrate"
-    ),
+    goal: Annotated[
+        list[str] | None,
+        typer.Argument(help="Goal or task description to orchestrate"),
+    ] = None,
     template: str = typer.Option(
         "build-feature",
         "--template",
