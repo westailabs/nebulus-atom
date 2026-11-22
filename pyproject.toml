@@ -58,4 +58,4 @@ line-length = 88
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "S110"]
 # TODO(lint-followup): temporary ignores; remove each rule in its own PR
-ignore = ["E501", "B904", "SIM105", "SIM102", "S110", "B008", "B027", "SIM222"]
+ignore = ["E501", "B904", "SIM105", "SIM102", "S110", "B008", "B027"]
