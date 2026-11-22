@@ -58,13 +58,17 @@ class MCPService:
             for tool in response.tools:
                 # We prefix tool names to avoid collisions: "mcp__<server>__<tool>"
                 tool_name = f"mcp__{name}__{tool.name}"
+                # mcp>=2 renamed Tool.inputSchema to input_schema.
+                schema = getattr(tool, "input_schema", None)
+                if schema is None:
+                    schema = getattr(tool, "inputSchema", None)
 
                 tool_def = {
                     "type": "function",
                     "function": {
                         "name": tool_name,
                         "description": tool.description or f"MCP Tool from {name}",
-                        "parameters": tool.inputSchema or {},
+                        "parameters": schema or {},
                     },
                 }
                 self.tools.append(tool_def)
