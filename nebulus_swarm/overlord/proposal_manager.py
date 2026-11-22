@@ -180,9 +180,7 @@ class ProposalStore:
         """Mark expired pending proposals. Returns count expired."""
         from datetime import timedelta
 
-        cutoff = (
-            datetime.now(UTC) - timedelta(minutes=ttl_minutes)
-        ).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(minutes=ttl_minutes)).isoformat()
 
         with self._conn() as conn:
             cursor = conn.execute(

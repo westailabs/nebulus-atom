@@ -59,8 +59,9 @@ class LLMConfig:
         default_factory=lambda: int(os.getenv("NEBULUS_TIMEOUT", "600"))
     )
     streaming: bool = field(
-        default_factory=lambda: os.getenv("NEBULUS_STREAMING", "false").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("NEBULUS_STREAMING", "false").lower() == "true"
+        )
     )
 
 
@@ -80,12 +81,14 @@ class ReviewerConfig:
         default_factory=lambda: os.getenv("REVIEWER_ENABLED", "true").lower() == "true"
     )
     auto_review: bool = field(
-        default_factory=lambda: os.getenv("REVIEWER_AUTO_REVIEW", "true").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("REVIEWER_AUTO_REVIEW", "true").lower() == "true"
+        )
     )
     auto_merge: bool = field(
-        default_factory=lambda: os.getenv("REVIEWER_AUTO_MERGE", "false").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("REVIEWER_AUTO_MERGE", "false").lower() == "true"
+        )
     )
     merge_method: str = field(
         default_factory=lambda: os.getenv("REVIEWER_MERGE_METHOD", "squash")
@@ -100,8 +103,9 @@ class OverlordLLMConfig:
     """LLM configuration for Overlord command parsing."""
 
     enabled: bool = field(
-        default_factory=lambda: os.getenv("OVERLORD_LLM_ENABLED", "true").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("OVERLORD_LLM_ENABLED", "true").lower() == "true"
+        )
     )
     base_url: str = field(
         default_factory=lambda: os.getenv(

@@ -558,9 +558,7 @@ class CognitionService:
 
         return record
 
-    def get_thought_history(
-        self, session_id: str | None = None
-    ) -> list[ThoughtRecord]:
+    def get_thought_history(self, session_id: str | None = None) -> list[ThoughtRecord]:
         """Get thought history, optionally filtered by session."""
         if session_id:
             return [t for t in self._thought_history if t.session_id == session_id]

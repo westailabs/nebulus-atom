@@ -256,9 +256,7 @@ except ImportError:
             Returns:
                 Number of entries deleted.
             """
-            cutoff = (
-                datetime.now(UTC) - timedelta(days=older_than_days)
-            ).isoformat()
+            cutoff = (datetime.now(UTC) - timedelta(days=older_than_days)).isoformat()
 
             with self._get_connection() as conn:
                 cursor = conn.execute(

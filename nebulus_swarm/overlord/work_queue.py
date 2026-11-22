@@ -559,9 +559,7 @@ class WorkQueue:
         """
         from datetime import timedelta
 
-        cutoff = (
-            datetime.now(UTC) - timedelta(minutes=timeout_minutes)
-        ).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(minutes=timeout_minutes)).isoformat()
 
         with self._get_connection() as conn:
             rows = conn.execute(

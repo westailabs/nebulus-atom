@@ -167,9 +167,7 @@ class Reporter:
         )
         return await self._send_report(payload)
 
-    async def progress(
-        self, message: str, data: dict[str, Any] | None = None
-    ) -> bool:
+    async def progress(self, message: str, data: dict[str, Any] | None = None) -> bool:
         """Report progress on the task.
 
         Args:

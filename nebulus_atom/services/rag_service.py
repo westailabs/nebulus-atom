@@ -76,9 +76,7 @@ class RagService:
                 if filename.endswith(".py") or filename.endswith(".md"):
                     filepath = os.path.join(dirpath, filename)
                     try:
-                        with open(
-                            filepath, encoding="utf-8", errors="ignore"
-                        ) as f:
+                        with open(filepath, encoding="utf-8", errors="ignore") as f:
                             content = f.read()
                             if content.strip():
                                 documents.append(content[:2000])  # Chunk limit

@@ -527,9 +527,7 @@ class TestLLMFallback:
             patch.object(router.memory, "search", return_value=[]),
         ):
             mock_client = AsyncMock()
-            mock_client.chat.completions.create = AsyncMock(
-                side_effect=TimeoutError()
-            )
+            mock_client.chat.completions.create = AsyncMock(side_effect=TimeoutError())
             router._llm_client = mock_client
 
             result = await router.handle("Tell me something", "U123", "C456")
@@ -1410,9 +1408,7 @@ class TestLLMFallbackDiagnostics:
             patch.object(router.memory, "search", return_value=[]),
         ):
             mock_client = AsyncMock()
-            mock_client.chat.completions.create = AsyncMock(
-                side_effect=TimeoutError()
-            )
+            mock_client.chat.completions.create = AsyncMock(side_effect=TimeoutError())
             router._llm_client = mock_client
 
             result = await router.handle("Tell me something", "U123", "C456")

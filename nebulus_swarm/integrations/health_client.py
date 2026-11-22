@@ -129,9 +129,7 @@ class HealthClient:
             logger.warning(f"Invalid health response: {e}")
             return self.DEFAULT_STATUS
 
-    def calculate_timeout_multiplier(
-        self, status: HealthStatus | None = None
-    ) -> float:
+    def calculate_timeout_multiplier(self, status: HealthStatus | None = None) -> float:
         """Calculate timeout multiplier based on thermal state.
 
         Args:

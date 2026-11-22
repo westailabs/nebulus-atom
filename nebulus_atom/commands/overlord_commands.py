@@ -1107,9 +1107,7 @@ def report(
         None, "--project", "-p", help="Project name (auto-detected from CWD)"
     ),
     task_id: str | None = typer.Option(None, "--task-id", help="Task identifier"),
-    track: str | None = typer.Option(
-        None, "--track", help="Track name for grouping"
-    ),
+    track: str | None = typer.Option(None, "--track", help="Track name for grouping"),
     agent: str | None = typer.Option(
         None, "--agent", help="Agent name (default: hostname)"
     ),

@@ -302,9 +302,7 @@ class GitHubQueue:
         """
         rate = self._client.get_rate_limit()
         reset_at = rate.core.reset
-        seconds_until_reset = max(
-            0, (reset_at - datetime.now(UTC)).total_seconds()
-        )
+        seconds_until_reset = max(0, (reset_at - datetime.now(UTC)).total_seconds())
 
         return {
             "remaining": rate.core.remaining,

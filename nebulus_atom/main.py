@@ -347,9 +347,7 @@ def proposals(
 @app.command("audit")
 def audit(
     action: str = typer.Argument(..., help="Action: 'verify' or 'export'"),
-    task_id: str | None = typer.Option(
-        None, "--task", "-t", help="Filter by task ID"
-    ),
+    task_id: str | None = typer.Option(None, "--task", "-t", help="Filter by task ID"),
     output: str | None = typer.Option(
         None, "--output", "-o", help="Output file for export"
     ),

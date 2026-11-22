@@ -68,9 +68,7 @@ def _load_queue():
 
 @queue_app.command("list")
 def queue_list(
-    status: str | None = typer.Option(
-        None, "--status", "-s", help="Filter by status"
-    ),
+    status: str | None = typer.Option(None, "--status", "-s", help="Filter by status"),
     project: str | None = typer.Option(
         None, "--project", "-p", help="Filter by project"
     ),

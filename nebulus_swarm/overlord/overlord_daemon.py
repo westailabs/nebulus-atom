@@ -223,9 +223,7 @@ class OverlordDaemon:
                 next_dt, next_task, _ = next_fires[0]
 
                 # Sleep until next fire time
-                sleep_seconds = max(
-                    0, (next_dt - datetime.now(UTC)).total_seconds()
-                )
+                sleep_seconds = max(0, (next_dt - datetime.now(UTC)).total_seconds())
                 logger.debug(
                     "Next task '%s' in %.0f seconds", next_task.name, sleep_seconds
                 )
