@@ -345,7 +345,7 @@ class TestBudgetEnforcement:
         d.dispatch_task(tid, skip_review=True)
         # Notification manager's send_urgent should have been attempted
         # (it's async, so the call may not complete, but we verify the method)
-        assert notifier.send_urgent.called or True  # Best-effort check
+        assert notifier.send_urgent.called
 
     def test_no_budget_check_on_dry_run(self, tmp_path: Path) -> None:
         d, q = _make_dispatcher(tmp_path, daily_ceiling_usd=1.0)

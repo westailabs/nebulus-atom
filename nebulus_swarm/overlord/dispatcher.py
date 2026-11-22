@@ -6,6 +6,8 @@ through worker execution and optional review.
 
 from __future__ import annotations
 
+import asyncio
+import inspect
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -108,6 +110,8 @@ class Dispatcher:
         self.warning_threshold_pct = warning_threshold_pct
         self.notification_manager = notification_manager
         self.governance = governance
+        # Strong refs so scheduled notification tasks are not garbage-collected.
+        self._notification_tasks: set[asyncio.Task] = set()
 
     def dispatch_task(
         self,
@@ -242,6 +246,22 @@ class Dispatcher:
 
             # 5. Generate brief
             ctx.brief_path = generate_mission_brief(ctx)
+
+            # 5b. Pre-dispatch daily budget check and threshold warning
+            if not dry_run and self.daily_ceiling_usd > 0:
+                available, pct = self.queue.check_budget_available(
+                    self.daily_ceiling_usd
+                )
+                if not available:
+                    return self._fail_task(
+                        task_id,
+                        selected_name,
+                        ctx,
+                        None,
+                        reason="Global daily budget exceeded",
+                    )
+                if pct >= self.warning_threshold_pct:
+                    self._notify_budget_warning(pct)
 
             # 6. Execute (Verify-Fix Pattern)
             exec_result: WorkerResult | None = None
@@ -572,6 +592,48 @@ class Dispatcher:
             return [i for i in issues if "Project path does not exist" not in i]
         except Exception:
             return []
+
+    def _notify_budget_warning(self, pct: float) -> None:
+        """Log and send an urgent alert when daily spend crosses the threshold.
+
+        Args:
+            pct: Current daily usage as a percentage of the ceiling.
+        """
+        message = (
+            f"Budget warning: daily spend at {pct:.0f}% "
+            f"of ${self.daily_ceiling_usd:.2f} ceiling"
+        )
+        logger.warning(message)
+        self._send_urgent(message)
+
+    def _send_urgent(self, message: str) -> None:
+        """Best-effort urgent notification that never breaks dispatch.
+
+        ``NotificationManager.send_urgent`` is a coroutine function. When an
+        event loop is already running the coroutine is scheduled on it;
+        otherwise it is run to completion with ``asyncio.run``.
+
+        Args:
+            message: Message text to send.
+        """
+        mgr = self.notification_manager
+        send = getattr(mgr, "send_urgent", None) if mgr else None
+        if send is None:
+            return
+        try:
+            result = send(message)
+            if not inspect.isawaitable(result):
+                return
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                asyncio.run(result)
+            else:
+                task = loop.create_task(result)
+                self._notification_tasks.add(task)
+                task.add_done_callback(self._notification_tasks.discard)
+        except Exception:
+            logger.warning("Failed to send urgent notification", exc_info=True)
 
     def _fail_task(
         self,
