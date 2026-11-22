@@ -10,7 +10,6 @@ import asyncio
 import inspect
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -421,10 +420,9 @@ class Dispatcher:
                         tokens_output=exec_result.tokens_output,
                         estimated_cost_usd=cost,
                         ceiling_usd=self.daily_ceiling_usd,
-                        updated_at=datetime.now(UTC).isoformat(),
                     )
                 except Exception:
-                    logger.debug("Failed to record token usage")
+                    logger.warning("Failed to record token usage", exc_info=True)
 
             if not dry_run:
                 self.queue.transition(
