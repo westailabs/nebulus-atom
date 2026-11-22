@@ -649,10 +649,12 @@ class TestLLMWarmup:
         # Test that timeout is handled gracefully
         timeout = aiohttp.ClientTimeout(total=0.001)
         try:
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                # This should timeout immediately
-                async with session.get("http://10.255.255.1/models"):
-                    pass
+            # This should timeout immediately
+            async with (
+                aiohttp.ClientSession(timeout=timeout) as session,
+                session.get("http://10.255.255.1/models"),
+            ):
+                pass
         except TimeoutError:
             # Expected behavior
             pass

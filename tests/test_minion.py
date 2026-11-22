@@ -156,20 +156,20 @@ class TestGitOps:
                 )
             return GitResult(success=True, output="ok")
 
-        with patch.object(git_ops, "push", side_effect=mock_push_side_effect):
-            with patch.object(
+        with (
+            patch.object(git_ops, "push", side_effect=mock_push_side_effect),
+            patch.object(
                 git_ops, "fetch", return_value=GitResult(success=True, output="")
-            ):
-                with patch.object(
-                    git_ops, "rebase", return_value=GitResult(success=True, output="")
-                ):
-                    with patch.object(
-                        git_ops, "get_current_branch", return_value="feature"
-                    ):
-                        result, rebased = git_ops.push_with_retry()
+            ),
+            patch.object(
+                git_ops, "rebase", return_value=GitResult(success=True, output="")
+            ),
+            patch.object(git_ops, "get_current_branch", return_value="feature"),
+        ):
+            result, rebased = git_ops.push_with_retry()
 
-                        assert result.success
-                        assert rebased
+            assert result.success
+            assert rebased
 
 
 class TestReporter:

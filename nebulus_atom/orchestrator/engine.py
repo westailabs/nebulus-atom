@@ -155,7 +155,7 @@ class WorkflowEngine:
                     *tasks, return_exceptions=True
                 )
 
-                for step, result in zip(ready, results):
+                for step, result in zip(ready, results, strict=False):
                     if isinstance(result, Exception):
                         result = StepResult(
                             step_id=step.id,

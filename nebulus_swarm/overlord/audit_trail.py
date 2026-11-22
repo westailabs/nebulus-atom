@@ -305,10 +305,7 @@ class AuditTrail:
         Returns:
             Dict with logs and integrity status.
         """
-        if task_id:
-            logs = self.get_logs_for_task(task_id)
-        else:
-            logs = self.get_all_logs()
+        logs = self.get_logs_for_task(task_id) if task_id else self.get_all_logs()
 
         is_valid, issues = self.verify_integrity()
 

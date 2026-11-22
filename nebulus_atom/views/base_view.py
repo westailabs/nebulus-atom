@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager
+from typing import Any
 
 
 class BaseView(ABC):
@@ -49,7 +50,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         """Creates a context manager for a loading spinner."""
         pass
 

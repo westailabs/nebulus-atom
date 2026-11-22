@@ -1,6 +1,6 @@
 import asyncio
-from contextlib import contextmanager
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager, contextmanager
+from typing import Any
 
 from nebulus_atom.views.base_view import BaseView
 
@@ -78,7 +78,7 @@ class HeadlessView(BaseView):
         await self._emit("goodbye", {})
 
     @contextmanager
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         # We can't really yield async here comfortably in a sync context manager
         # unless we just fire-and-forget the "start" and "stop" events.
         # Since the consumers are async, we might need a workaround or just

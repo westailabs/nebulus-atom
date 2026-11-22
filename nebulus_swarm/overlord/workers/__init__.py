@@ -6,8 +6,6 @@ all configured workers from overlord.yml.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
 from nebulus_swarm.overlord.workers.claude import (
     ClaudeWorker,

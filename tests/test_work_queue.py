@@ -34,24 +34,22 @@ class TestSchema:
     def test_status_check_constraint(self, queue: WorkQueue) -> None:
         """Invalid status rejected by CHECK constraint."""
         task_id = _add_sample_task(queue)
-        with pytest.raises(sqlite3.IntegrityError):
-            with queue._get_connection() as conn:
-                conn.execute(
-                    "UPDATE tasks SET status = 'invalid' WHERE id = ?",
-                    (task_id,),
-                )
+        with pytest.raises(sqlite3.IntegrityError), queue._get_connection() as conn:
+            conn.execute(
+                "UPDATE tasks SET status = 'invalid' WHERE id = ?",
+                (task_id,),
+            )
 
     def test_priority_check_constraint(self, queue: WorkQueue) -> None:
         """Invalid priority rejected by CHECK constraint."""
-        with pytest.raises(sqlite3.IntegrityError):
-            with queue._get_connection() as conn:
-                now = datetime.now(UTC).isoformat()
-                conn.execute(
-                    "INSERT INTO tasks (id, project, title, status, priority, "
-                    "complexity, retry_count, created_at, updated_at) "
-                    "VALUES (?, ?, ?, 'backlog', 'invalid', 'medium', 0, ?, ?)",
-                    ("test-id", "proj", "title", now, now),
-                )
+        with pytest.raises(sqlite3.IntegrityError), queue._get_connection() as conn:
+            now = datetime.now(UTC).isoformat()
+            conn.execute(
+                "INSERT INTO tasks (id, project, title, status, priority, "
+                "complexity, retry_count, created_at, updated_at) "
+                "VALUES (?, ?, ?, 'backlog', 'invalid', 'medium', 0, ?, ?)",
+                ("test-id", "proj", "title", now, now),
+            )
 
     def test_unique_external_id_source(self, queue: WorkQueue) -> None:
         """UNIQUE constraint on (external_id, external_source)."""

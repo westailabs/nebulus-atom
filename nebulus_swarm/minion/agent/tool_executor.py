@@ -375,10 +375,7 @@ class ToolExecutor:
             regex = re.compile(pattern, re.IGNORECASE)
 
             # Walk through files
-            if resolved.is_file():
-                files = [resolved]
-            else:
-                files = list(resolved.rglob("*"))
+            files = [resolved] if resolved.is_file() else list(resolved.rglob("*"))
 
             for file_path in files:
                 if not file_path.is_file():

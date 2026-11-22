@@ -2,8 +2,8 @@ import asyncio
 import os
 import subprocess
 import sys
-from contextlib import contextmanager
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager, contextmanager
+from typing import Any
 
 # Prompt Toolkit Imports
 from prompt_toolkit import PromptSession
@@ -265,7 +265,7 @@ class CLIView(BaseView):
 
         return Panel(grid, style="white on #222222", box=box.SIMPLE, padding=(0, 1))
 
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         if os.environ.get("MINI_NEBULUS_HEADLESS") == "1":
             # Headless mode: Simple log, no Rich Live
             self.console.print(f"[dim]Thinking: {text}[/dim]")

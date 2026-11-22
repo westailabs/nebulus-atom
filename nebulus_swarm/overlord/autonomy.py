@@ -124,10 +124,7 @@ class AutonomyEngine:
             return True
 
         # High impact affecting multiple projects
-        if scope.estimated_impact == "high" and len(scope.projects) > 1:
-            return True
-
-        return False
+        return scope.estimated_impact == "high" and len(scope.projects) > 1
 
     def get_project_config(self, project: str) -> AutonomyConfig:
         """Get full autonomy configuration for a project.

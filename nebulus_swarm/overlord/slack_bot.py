@@ -4,7 +4,6 @@ import asyncio
 import logging
 import re
 from collections.abc import Awaitable, Callable
-from typing import Union
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.async_app import AsyncApp
@@ -15,10 +14,7 @@ logger = logging.getLogger(__name__)
 MessageHandler = Callable[[str, str, str], str | Awaitable[str]]
 
 # Type alias for thread reply handlers (async-aware)
-ThreadReplyHandler = Union[
-    Callable[[str, str], None],
-    Callable[[str, str], Awaitable[None]],
-]
+ThreadReplyHandler = Callable[[str, str], None] | Callable[[str, str], Awaitable[None]]
 
 
 class SlackBot:

@@ -126,12 +126,14 @@ class TestCallAnthropic:
 
     def test_missing_api_key(self) -> None:
         mock_anthropic = self._make_mock_anthropic()
-        with patch.dict(sys.modules, {"anthropic": mock_anthropic}):
-            with patch.dict("os.environ", {}, clear=True):
-                from nebulus_swarm.overlord.workers.sdk_factory import call_anthropic
+        with (
+            patch.dict(sys.modules, {"anthropic": mock_anthropic}),
+            patch.dict("os.environ", {}, clear=True),
+        ):
+            from nebulus_swarm.overlord.workers.sdk_factory import call_anthropic
 
-                with pytest.raises(ValueError, match="No Anthropic API key"):
-                    call_anthropic("test", "sonnet")
+            with pytest.raises(ValueError, match="No Anthropic API key"):
+                call_anthropic("test", "sonnet")
 
     def test_api_error(self) -> None:
         mock_anthropic = self._make_mock_anthropic()

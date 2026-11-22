@@ -225,10 +225,7 @@ def is_skill_change(changed_files: list[str]) -> bool:
     Returns:
         True if any skill files were changed.
     """
-    for file in changed_files:
-        if file.startswith(".nebulus/skills/"):
-            return True
-    return False
+    return any(file.startswith(".nebulus/skills/") for file in changed_files)
 
 
 def validate_skill_changes(

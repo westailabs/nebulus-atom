@@ -190,7 +190,7 @@ class ReleaseCoordinator:
             projects=affected,
             branches=[spec.source_branch, spec.target_branch],
             destructive=False,
-            reversible=False if spec.push_to_remote else True,
+            reversible=not spec.push_to_remote,
             affects_remote=spec.push_to_remote,
             estimated_impact="high",
         )
