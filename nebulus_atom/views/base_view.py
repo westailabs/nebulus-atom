@@ -54,15 +54,17 @@ class BaseView(ABC):
         """Creates a context manager for a loading spinner."""
         pass
 
-    # Streaming output methods (with default no-op implementations for backwards compatibility)
-    def print_stream_start(self):
+    # Optional streaming hooks. They are deliberately concrete no-ops, not
+    # abstract: views that do not stream (e.g. HeadlessView) inherit them, so
+    # B027 ("empty method in ABC without @abstractmethod") is suppressed here.
+    def print_stream_start(self):  # noqa: B027 - optional hook, no-op default
         """Called before streaming response begins."""
         pass
 
-    def print_stream_chunk(self, text: str):
+    def print_stream_chunk(self, text: str):  # noqa: B027 - optional hook, no-op default
         """Called for each chunk of streamed text."""
         pass
 
-    def print_stream_end(self):
+    def print_stream_end(self):  # noqa: B027 - optional hook, no-op default
         """Called when streaming response is complete."""
         pass
