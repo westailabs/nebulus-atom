@@ -1,8 +1,9 @@
-import streamlit as st
-import sqlite3
-import pandas as pd
 import json
 import os
+import sqlite3
+
+import pandas as pd
+import streamlit as st
 
 DB_PATH = "nebulus_atom/data/telemetry.db"
 
@@ -100,7 +101,7 @@ def render_skills():
 
     selected_skill = st.selectbox("Select Skill", skills)
     if selected_skill:
-        with open(os.path.join(skill_dir, selected_skill), "r") as f:
+        with open(os.path.join(skill_dir, selected_skill)) as f:
             code = f.read()
         st.code(code, language="python")
 

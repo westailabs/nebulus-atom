@@ -1,9 +1,9 @@
 """Tests for the small-model auditor."""
 
 from nebulus_swarm.overlord.auditor import (
+    AuditIssue,
     Auditor,
     AuditorConfig,
-    AuditIssue,
     AuditResult,
     AuditSeverity,
 )

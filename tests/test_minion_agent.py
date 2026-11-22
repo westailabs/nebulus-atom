@@ -628,7 +628,7 @@ class TestReporter:
 
     def test_complete_includes_review_summary(self):
         """Test that complete() accepts and includes review_summary."""
-        from nebulus_swarm.minion.reporter import ReportPayload, EventType
+        from nebulus_swarm.minion.reporter import EventType, ReportPayload
 
         # Create payload with review summary
         payload = ReportPayload(
@@ -650,7 +650,7 @@ class TestReporter:
 
     def test_report_payload_to_dict(self):
         """Test ReportPayload serialization."""
-        from nebulus_swarm.minion.reporter import ReportPayload, EventType
+        from nebulus_swarm.minion.reporter import EventType, ReportPayload
 
         payload = ReportPayload(
             minion_id="m1",
@@ -710,12 +710,12 @@ class TestPRReviewIntegration:
 
     def test_workflow_result_summary(self):
         """Test WorkflowResult summary generation."""
-        from nebulus_swarm.reviewer.workflow import WorkflowResult
         from nebulus_swarm.reviewer.pr_reviewer import (
             PRDetails,
-            ReviewResult,
             ReviewDecision,
+            ReviewResult,
         )
+        from nebulus_swarm.reviewer.workflow import WorkflowResult
 
         pr_details = PRDetails(
             repo="test/repo",

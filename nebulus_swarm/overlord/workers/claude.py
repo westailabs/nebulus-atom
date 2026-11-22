@@ -11,7 +11,6 @@ import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
 
@@ -27,7 +26,7 @@ class ClaudeWorkerConfig(WorkerConfig):
     default_model: str = "sonnet"
     model_overrides: dict[str, str] = field(default_factory=dict)
     timeout: int = 600
-    api_key: Optional[str] = None
+    api_key: str | None = None
     api_key_env: str = "ANTHROPIC_API_KEY"
 
 
@@ -47,7 +46,7 @@ class ClaudeWorker(BaseWorker):
     def __init__(self, config: ClaudeWorkerConfig) -> None:
         super().__init__(config)
         self._available = False
-        self._api_key: Optional[str] = None
+        self._api_key: str | None = None
 
         if config.enabled:
             self._api_key = config.api_key or os.environ.get(config.api_key_env)
@@ -70,7 +69,7 @@ class ClaudeWorker(BaseWorker):
         prompt: str,
         project_path: Path,
         task_type: str = "feature",
-        model: Optional[str] = None,
+        model: str | None = None,
     ) -> WorkerResult:
         """Execute a prompt via the Anthropic SDK.
 
@@ -137,7 +136,7 @@ class ClaudeWorker(BaseWorker):
             )
 
 
-def load_worker_config(raw_workers: dict) -> Optional[ClaudeWorkerConfig]:
+def load_worker_config(raw_workers: dict) -> ClaudeWorkerConfig | None:
     """Parse a Claude worker config from the workers YAML section.
 
     Args:

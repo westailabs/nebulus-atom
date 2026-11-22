@@ -1,11 +1,13 @@
-import os
-import pkgutil
 import importlib
 import importlib.util
 import inspect
+import os
+import pkgutil
 import shutil
 import sys
-from typing import List, Dict, Callable, Any
+from collections.abc import Callable
+from typing import Any
+
 from nebulus_atom.config import Config
 from nebulus_atom.utils.logger import setup_logger
 from nebulus_atom.utils.sandbox import sandbox
@@ -17,8 +19,8 @@ class SkillService:
     def __init__(self, skills_dir: str = "nebulus_atom/skills"):
         self.skills_dir = skills_dir
         self.global_skills_dir = Config.GLOBAL_SKILLS_PATH
-        self.skills: Dict[str, Callable] = {}
-        self.tool_definitions: List[Dict] = []
+        self.skills: dict[str, Callable] = {}
+        self.tool_definitions: list[dict] = []
 
     def load_skills(self):
         """Scans local and global skills directories and loads all valid skill functions."""
@@ -123,11 +125,11 @@ class SkillService:
         self.skills[name] = func
         self.tool_definitions.append(tool_def)
 
-    def get_tool_definitions(self) -> List[Dict]:
+    def get_tool_definitions(self) -> list[dict]:
         return self.tool_definitions
 
     @sandbox
-    def execute_skill(self, name: str, args: Dict[str, Any]) -> str:
+    def execute_skill(self, name: str, args: dict[str, Any]) -> str:
         if name not in self.skills:
             raise ValueError(f"Skill {name} not found")
 

@@ -1,9 +1,9 @@
-from typing import List, Dict, Any
 import subprocess
+from typing import Any
 
 
 class ForgeSkill:
-    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> list[dict[str, Any]]:
         return [
             {
                 "type": "function",
@@ -33,7 +33,7 @@ class ForgeSkill:
         ]
 
     async def execute(
-        self, tool_name: str, arguments: Dict[str, Any], session_id: str
+        self, tool_name: str, arguments: dict[str, Any], session_id: str
     ) -> str:
         if tool_name == "create_new_project":
             return self._create_new_project(

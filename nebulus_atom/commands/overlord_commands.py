@@ -5,9 +5,8 @@ from __future__ import annotations
 import re
 import socket
 import subprocess
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 import typer
 import yaml
@@ -54,7 +53,7 @@ console = Console()
 
 @overlord_app.command()
 def status(
-    project: Optional[str] = typer.Argument(None, help="Single project to check"),
+    project: str | None = typer.Argument(None, help="Single project to check"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show extra detail"),
 ) -> None:
     """Show ecosystem health summary."""
@@ -76,7 +75,7 @@ def status(
 
 @overlord_app.command()
 def scan(
-    project: Optional[str] = typer.Argument(None, help="Single project to scan"),
+    project: str | None = typer.Argument(None, help="Single project to scan"),
 ) -> None:
     """Deep scan projects for issues."""
     registry = _load_registry_or_exit()
@@ -96,7 +95,7 @@ def scan(
 
 @overlord_app.command()
 def discover(
-    workspace: Optional[str] = typer.Option(
+    workspace: str | None = typer.Option(
         None,
         "--workspace",
         "-w",
@@ -191,7 +190,7 @@ def show_config() -> None:
 
 @overlord_app.command("graph")
 def show_graph(
-    project: Optional[str] = typer.Argument(
+    project: str | None = typer.Argument(
         None, help="Project to analyze (shows full graph if omitted)"
     ),
 ) -> None:
@@ -230,8 +229,8 @@ def show_graph(
 @overlord_app.command("memory")
 def manage_memory(
     action: str = typer.Argument(help="Action: search, recent, forget, prune"),
-    query: Optional[str] = typer.Argument(None, help="Search query or entry ID"),
-    project: Optional[str] = typer.Option(
+    query: str | None = typer.Argument(None, help="Search query or entry ID"),
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Filter by project"
     ),
     limit: int = typer.Option(20, "--limit", "-n", help="Max results"),
@@ -311,13 +310,13 @@ def show_scope(
 
 @overlord_app.command("autonomy")
 def manage_autonomy(
-    global_level: Optional[str] = typer.Option(
+    global_level: str | None = typer.Option(
         None, "--global", help="Set global autonomy level"
     ),
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Project to configure"
     ),
-    level: Optional[str] = typer.Option(
+    level: str | None = typer.Option(
         None, "--level", "-l", help="Autonomy level for project"
     ),
     list_approved: bool = typer.Option(
@@ -403,7 +402,7 @@ def manage_autonomy(
 # --- Helpers ---
 
 
-def _load_registry_or_exit() -> Optional[OverlordConfig]:
+def _load_registry_or_exit() -> OverlordConfig | None:
     """Load the registry config, printing an error if it fails."""
     try:
         registry = load_config()
@@ -1104,14 +1103,14 @@ def report(
         help="Status: started, in_progress, blocked, completed"
     ),
     message: str = typer.Argument(help="Status update text"),
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Project name (auto-detected from CWD)"
     ),
-    task_id: Optional[str] = typer.Option(None, "--task-id", help="Task identifier"),
-    track: Optional[str] = typer.Option(
+    task_id: str | None = typer.Option(None, "--task-id", help="Task identifier"),
+    track: str | None = typer.Option(
         None, "--track", help="Track name for grouping"
     ),
-    agent: Optional[str] = typer.Option(
+    agent: str | None = typer.Option(
         None, "--agent", help="Agent name (default: hostname)"
     ),
 ) -> None:
@@ -1153,7 +1152,7 @@ def report(
 
     # Auto-generate task_id and agent name
     if not task_id:
-        now = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        now = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
         task_id = f"{project}-{now}"
 
     if not agent:
@@ -1195,7 +1194,7 @@ def _post_report_to_slack(
     project: str,
     agent: str,
     task_id: str,
-    track: Optional[str],
+    track: str | None,
 ) -> None:
     """Post a dispatch report to #nebulus-ops via Slack."""
     import asyncio
@@ -1257,7 +1256,7 @@ def board(
     entries = mem.search("", category="dispatch", limit=200)
 
     # Filter by time window
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
     cutoff_iso = cutoff.isoformat()
     entries = [e for e in entries if e.timestamp >= cutoff_iso]
 
@@ -1329,7 +1328,7 @@ def board(
 
 
 def _sync_overlord_md(
-    registry: "OverlordConfig",
+    registry: OverlordConfig,
     active: list,
     completed: list,
     agents: dict[str, list[str]],
@@ -1507,7 +1506,7 @@ def budget_history(
     table.add_column("Ceiling", justify="right")
     table.add_column("Usage %", justify="right")
 
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     found = 0
 
     for i in range(days):

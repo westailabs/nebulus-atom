@@ -7,20 +7,19 @@ import signal
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.minion.agent import (
+    MINION_TOOLS,
     AgentResult,
     AgentStatus,
     LLMConfig,
     MinionAgent,
     ToolExecutor,
     ToolResult,
-    MINION_TOOLS,
 )
 from nebulus_swarm.minion.agent.prompt_builder import IssueContext, build_system_prompt
-from nebulus_swarm.minion.github_client import GitHubClient, IssueDetails
 from nebulus_swarm.minion.git_ops import GitOps
+from nebulus_swarm.minion.github_client import GitHubClient, IssueDetails
 from nebulus_swarm.minion.reporter import Reporter
 from nebulus_swarm.overlord.scope import ScopeConfig
 from nebulus_swarm.reviewer.workflow import ReviewConfig, ReviewWorkflow, WorkflowResult
@@ -103,8 +102,8 @@ class Minion:
             issue_number=config.issue_number,
             callback_url=config.overlord_callback_url,
         )
-        self.git: Optional[GitOps] = None
-        self.issue: Optional[IssueDetails] = None
+        self.git: GitOps | None = None
+        self.issue: IssueDetails | None = None
 
     def _signal_handler(self, sig: signal.Signals, frame) -> None:
         """Handle shutdown signals."""
@@ -127,7 +126,7 @@ class Minion:
                 self._run_lifecycle(),
                 timeout=self.config.minion_timeout,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(f"Minion timed out after {self.config.minion_timeout}s")
             await self.reporter.error(
                 "Minion timed out",
@@ -477,7 +476,7 @@ Co-Authored-By: Nebulus Minion <minion@nebulus.local>
 
     async def _create_pull_request(
         self, branch_name: str, base_branch: str
-    ) -> Optional[object]:
+    ) -> object | None:
         """Create a pull request for the work.
 
         Args:
@@ -529,7 +528,7 @@ Closes #{self.config.issue_number}
             )
             return None
 
-    async def _review_pr(self, pr_number: int) -> Optional[WorkflowResult]:
+    async def _review_pr(self, pr_number: int) -> WorkflowResult | None:
         """Run PR review after creation.
 
         Reviews the PR using the automated review workflow and posts

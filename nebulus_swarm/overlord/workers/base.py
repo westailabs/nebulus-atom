@@ -10,7 +10,6 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ class WorkerResult:
 
     success: bool
     output: str = ""
-    error: Optional[str] = None
+    error: str | None = None
     duration: float = 0.0
     model_used: str = ""
     worker_type: str = ""
@@ -65,7 +64,7 @@ class BaseWorker(ABC):
         prompt: str,
         project_path: Path,
         task_type: str = "feature",
-        model: Optional[str] = None,
+        model: str | None = None,
     ) -> WorkerResult:
         """Execute a prompt and return the result.
 
@@ -80,7 +79,7 @@ class BaseWorker(ABC):
         """
         ...
 
-    def _select_model(self, task_type: str, explicit: Optional[str] = None) -> str:
+    def _select_model(self, task_type: str, explicit: str | None = None) -> str:
         """Select model with priority: explicit > override > default.
 
         Args:

@@ -8,11 +8,11 @@ pytest.importorskip("github")
 
 
 from nebulus_swarm.overlord.evaluator import (
+    MAX_REVISIONS,
     CheckScore,
     EvaluationResult,
     Evaluator,
     RevisionRequest,
-    MAX_REVISIONS,
 )
 from nebulus_swarm.reviewer.checks import CheckResult, ChecksReport, CheckStatus
 from nebulus_swarm.reviewer.pr_reviewer import ReviewDecision, ReviewResult

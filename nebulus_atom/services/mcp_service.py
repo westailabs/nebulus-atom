@@ -1,8 +1,10 @@
 import os
 from contextlib import AsyncExitStack
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+
 from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -10,16 +12,16 @@ logger = setup_logger(__name__)
 
 class MCPService:
     def __init__(self):
-        self.sessions: Dict[str, ClientSession] = {}
+        self.sessions: dict[str, ClientSession] = {}
         self.exit_stack = AsyncExitStack()
-        self.tools: List[Dict[str, Any]] = []
+        self.tools: list[dict[str, Any]] = []
 
     async def connect_server(
         self,
         name: str,
         command: str,
-        args: List[str],
-        env: Optional[Dict[str, str]] = None,
+        args: list[str],
+        env: dict[str, str] | None = None,
     ):
         """
         Connects to an MCP server via stdio.
@@ -74,7 +76,7 @@ class MCPService:
             logger.error(f"Failed to connect to MCP server {name}: {e}", exc_info=True)
             return f"Error connecting to {name}: {str(e)}"
 
-    async def call_tool(self, name: str, arguments: Dict[str, Any]) -> Any:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         """
         Calls a tool on a connected MCP server.
         Expects name format: mcp__<server>__<tool>
@@ -105,7 +107,7 @@ class MCPService:
 
         return "\n".join(output)
 
-    def get_tools(self) -> List[Dict[str, Any]]:
+    def get_tools(self) -> list[dict[str, Any]]:
         return self.tools
 
     async def shutdown(self):

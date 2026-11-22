@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
 
 from github import Auth, Github
 from github.GithubException import GithubException
@@ -18,8 +17,8 @@ class IssueDetails:
     number: int
     title: str
     body: str
-    labels: List[str]
-    comments: List[str]
+    labels: list[str]
+    comments: list[str]
     author: str
     state: str
 
@@ -163,8 +162,8 @@ class GitHubClient:
         self,
         repo_name: str,
         issue_number: int,
-        add_labels: Optional[List[str]] = None,
-        remove_labels: Optional[List[str]] = None,
+        add_labels: list[str] | None = None,
+        remove_labels: list[str] | None = None,
     ) -> None:
         """Update labels on an issue.
 

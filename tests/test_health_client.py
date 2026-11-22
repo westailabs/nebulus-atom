@@ -1,7 +1,8 @@
 """Tests for the platform health API client."""
 
-import requests
 from unittest.mock import MagicMock, patch
+
+import requests
 
 from nebulus_swarm.integrations.health_client import (
     HealthClient,

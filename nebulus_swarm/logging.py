@@ -6,11 +6,11 @@ import os
 import sys
 import uuid
 from contextvars import ContextVar
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 # Context variable for correlation ID (traces work across minions)
-correlation_id: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
+correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
 
 def get_correlation_id() -> str:
@@ -65,8 +65,8 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON."""
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        log_data: dict[str, Any] = {
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -131,7 +131,7 @@ class ConsoleFormatter(logging.Formatter):
 def configure_logging(
     level: str = "INFO",
     json_output: bool = False,
-    log_file: Optional[str] = None,
+    log_file: str | None = None,
 ) -> None:
     """Configure logging for the swarm.
 

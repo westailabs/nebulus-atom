@@ -78,7 +78,7 @@ SCOPE_RELEASE = ActionScope(
 def evaluate_scope(
     scope: ActionScope,
     autonomy_level: str,
-    config: "OverlordConfig",
+    config: OverlordConfig,
 ) -> ScopeVerdict:
     """Evaluate whether an action should proceed under the given autonomy level.
 
@@ -200,7 +200,7 @@ def scope_for_push(projects: list[str]) -> ActionScope:
     )
 
 
-def scope_for_release(project: str, graph: "DependencyGraph") -> ActionScope:
+def scope_for_release(project: str, graph: DependencyGraph) -> ActionScope:
     """Build an ActionScope for a release, including downstream projects.
 
     Args:

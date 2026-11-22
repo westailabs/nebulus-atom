@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
-
 
 # --- Concrete test implementation ---
 
@@ -31,7 +29,7 @@ class DummyWorker(BaseWorker):
         prompt: str,
         project_path: Path,
         task_type: str = "feature",
-        model: Optional[str] = None,
+        model: str | None = None,
     ) -> WorkerResult:
         selected = self._select_model(task_type, model)
         return WorkerResult(

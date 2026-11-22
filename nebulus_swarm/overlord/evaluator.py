@@ -4,7 +4,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from nebulus_swarm.reviewer.checks import ChecksReport, CheckStatus
 from nebulus_swarm.reviewer.pr_reviewer import ReviewDecision, ReviewResult
@@ -102,7 +101,7 @@ class Evaluator:
         revision_number: int = 0,
         issue_number: int = 0,
         branch: str = "",
-    ) -> tuple[EvaluationResult, Optional[RevisionRequest]]:
+    ) -> tuple[EvaluationResult, RevisionRequest | None]:
         """Evaluate a Minion's work and determine if revision is needed.
 
         Args:

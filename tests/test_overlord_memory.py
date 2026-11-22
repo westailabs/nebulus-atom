@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -121,7 +121,7 @@ class TestPrune:
 
     def test_prune_deletes_old_entries(self, memory: OverlordMemory) -> None:
         # Insert an entry with a timestamp 100 days ago
-        old_ts = (datetime.now(timezone.utc) - timedelta(days=100)).isoformat()
+        old_ts = (datetime.now(UTC) - timedelta(days=100)).isoformat()
         import sqlite3
 
         conn = sqlite3.connect(str(memory.db_path))

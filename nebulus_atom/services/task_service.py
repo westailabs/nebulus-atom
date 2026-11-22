@@ -1,6 +1,6 @@
-import os
 import json
-from typing import Optional, Dict, List
+import os
+
 from nebulus_atom.models.task import Plan, Task, TaskStatus
 from nebulus_atom.utils.logger import setup_logger
 
@@ -13,14 +13,14 @@ class TaskService:
         self.storage_path = os.path.join(
             os.getcwd(), ".nebulus_atom", "sessions", session_id, "plan.json"
         )
-        self.current_plan: Optional[Plan] = None
+        self.current_plan: Plan | None = None
         self.load_plan()
 
     def load_plan(self):
         """Loads plan from disk if it exists."""
         if os.path.exists(self.storage_path):
             try:
-                with open(self.storage_path, "r") as f:
+                with open(self.storage_path) as f:
                     data = json.load(f)
                     self.current_plan = Plan.from_dict(data)
                 logger.info(f"Loaded existing plan for session {self.session_id}")
@@ -45,7 +45,7 @@ class TaskService:
         self.save_plan()
         return self.current_plan
 
-    def add_task(self, description: str, dependencies: List[str] = None) -> Task:
+    def add_task(self, description: str, dependencies: list[str] = None) -> Task:
         if not self.current_plan:
             raise ValueError("No active plan. Create a plan first.")
         if isinstance(dependencies, str):
@@ -54,7 +54,7 @@ class TaskService:
         self.save_plan()
         return task
 
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         if not self.current_plan:
             return None
         for task in self.current_plan.tasks:
@@ -75,7 +75,7 @@ class TaskService:
             task.result = result
         self.save_plan()
 
-    def get_plan_data(self) -> Optional[Dict]:
+    def get_plan_data(self) -> dict | None:
         if not self.current_plan:
             return None
         return {
@@ -121,7 +121,7 @@ class TaskServiceManager:
     """Manages separate TaskService instances per session."""
 
     def __init__(self):
-        self.sessions: Dict[str, TaskService] = {}
+        self.sessions: dict[str, TaskService] = {}
 
     def get_service(self, session_id: str) -> TaskService:
         if session_id not in self.sessions:

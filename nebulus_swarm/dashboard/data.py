@@ -7,7 +7,7 @@ reads state.db directly for historical data and analytics.
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -47,14 +47,14 @@ class SwarmDataClient:
             state_db_path: Path to the Overlord state SQLite database.
         """
         self.overlord_url = overlord_url.rstrip("/")
-        self._state: Optional[OverlordState] = None
+        self._state: OverlordState | None = None
         self._state_db_path = state_db_path
 
         # API response cache
-        self._cache: Dict[str, CachedResponse] = {}
+        self._cache: dict[str, CachedResponse] = {}
 
     @property
-    def state(self) -> Optional[OverlordState]:
+    def state(self) -> OverlordState | None:
         """Lazily initialize the state DB connection."""
         if self._state is None:
             try:
@@ -67,7 +67,7 @@ class SwarmDataClient:
     # Real-time data (Overlord HTTP API)
     # ------------------------------------------------------------------
 
-    def _fetch_api(self, path: str) -> Optional[dict]:
+    def _fetch_api(self, path: str) -> dict | None:
         """Fetch JSON from the Overlord API with caching.
 
         Args:
@@ -95,7 +95,7 @@ class SwarmDataClient:
             logger.debug(f"API error for {path}: {e}")
             return None
 
-    def get_status(self) -> Optional[dict]:
+    def get_status(self) -> dict | None:
         """Get real-time Overlord status.
 
         Returns:
@@ -104,7 +104,7 @@ class SwarmDataClient:
         """
         return self._fetch_api("/status")
 
-    def get_health(self) -> Optional[dict]:
+    def get_health(self) -> dict | None:
         """Get Overlord health check.
 
         Returns:
@@ -112,7 +112,7 @@ class SwarmDataClient:
         """
         return self._fetch_api("/health")
 
-    def get_queue(self) -> Optional[dict]:
+    def get_queue(self) -> dict | None:
         """Get cached queue scan results.
 
         Returns:
@@ -131,10 +131,10 @@ class SwarmDataClient:
 
     def get_work_history(
         self,
-        repo: Optional[str] = None,
-        status: Optional[str] = None,
+        repo: str | None = None,
+        status: str | None = None,
         limit: int = 50,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Get work history from state database.
 
         Args:
@@ -153,7 +153,7 @@ class SwarmDataClient:
             logger.warning(f"Failed to read work history: {e}")
             return []
 
-    def get_distinct_repos(self) -> List[str]:
+    def get_distinct_repos(self) -> list[str]:
         """Get list of distinct repositories from work history.
 
         Returns:
@@ -167,7 +167,7 @@ class SwarmDataClient:
             logger.warning(f"Failed to read repos: {e}")
             return []
 
-    def get_metrics(self, days: Optional[int] = None) -> dict:
+    def get_metrics(self, days: int | None = None) -> dict:
         """Compute aggregate metrics from work history.
 
         Args:
@@ -214,7 +214,7 @@ class SwarmDataClient:
             )
 
             # Daily breakdown
-            daily: Dict[str, Dict[str, int]] = {}
+            daily: dict[str, dict[str, int]] = {}
             for h in history:
                 if h.get("completed_at"):
                     day = h["completed_at"][:10]  # YYYY-MM-DD
@@ -249,7 +249,7 @@ class SwarmDataClient:
                 )
 
             # Failure analysis
-            error_types: Dict[str, Dict[str, Any]] = {}
+            error_types: dict[str, dict[str, Any]] = {}
             for h in history:
                 if h["status"] != "completed" and h.get("error_message"):
                     # Extract error type from "type: message" format

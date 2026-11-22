@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
 from nebulus_swarm.overlord.work_queue import (
-    DispatchResultRecord,
     TRANSITIONS,
+    DispatchResultRecord,
     WorkQueue,
 )
 
@@ -45,7 +45,7 @@ class TestSchema:
         """Invalid priority rejected by CHECK constraint."""
         with pytest.raises(sqlite3.IntegrityError):
             with queue._get_connection() as conn:
-                now = datetime.now(timezone.utc).isoformat()
+                now = datetime.now(UTC).isoformat()
                 conn.execute(
                     "INSERT INTO tasks (id, project, title, status, priority, "
                     "complexity, retry_count, created_at, updated_at) "
@@ -239,7 +239,7 @@ class TestLocking:
         queue.lock_task(task_id, "worker-1")
 
         # Backdate the lock
-        old_ts = (datetime.now(timezone.utc) - timedelta(minutes=60)).isoformat()
+        old_ts = (datetime.now(UTC) - timedelta(minutes=60)).isoformat()
         with queue._get_connection() as conn:
             conn.execute(
                 "UPDATE tasks SET locked_at = ? WHERE id = ?",

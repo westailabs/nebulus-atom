@@ -3,8 +3,7 @@
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import List, Optional
+from datetime import UTC, datetime
 
 from github import Auth, Github
 from github.GithubException import GithubException, RateLimitExceededException
@@ -24,7 +23,7 @@ class QueuedIssue:
     repo: str
     number: int
     title: str
-    labels: List[str]
+    labels: list[str]
     created_at: datetime
     priority: int = 0  # Higher = more urgent
     body: str = ""
@@ -39,7 +38,7 @@ class GitHubQueue:
     def __init__(
         self,
         token: str,
-        watched_repos: List[str],
+        watched_repos: list[str],
         work_label: str = "nebulus-ready",
         in_progress_label: str = "in-progress",
         high_priority_label: str = "high-priority",
@@ -62,13 +61,13 @@ class GitHubQueue:
         auth = Auth.Token(token)
         self._client = Github(auth=auth)
 
-    def scan_queue(self) -> List[QueuedIssue]:
+    def scan_queue(self) -> list[QueuedIssue]:
         """Scan all watched repos for issues ready to work on.
 
         Returns:
             List of QueuedIssue objects, sorted by priority then date.
         """
-        all_issues: List[QueuedIssue] = []
+        all_issues: list[QueuedIssue] = []
 
         for repo_name in self.watched_repos:
             try:
@@ -86,7 +85,7 @@ class GitHubQueue:
 
         return all_issues
 
-    def _scan_repo(self, repo_name: str) -> List[QueuedIssue]:
+    def _scan_repo(self, repo_name: str) -> list[QueuedIssue]:
         """Scan a single repo for ready issues.
 
         Args:
@@ -139,7 +138,7 @@ class GitHubQueue:
             logger.error(f"Failed to scan {repo_name}: {e}")
             raise
 
-    def get_issue_details(self, repo_name: str, issue_number: int) -> Optional[dict]:
+    def get_issue_details(self, repo_name: str, issue_number: int) -> dict | None:
         """Fetch basic issue details for routing decisions.
 
         Args:
@@ -161,7 +160,7 @@ class GitHubQueue:
             logger.error(f"Failed to fetch {repo_name}#{issue_number}: {e}")
             return None
 
-    def get_next_issue(self) -> Optional[QueuedIssue]:
+    def get_next_issue(self) -> QueuedIssue | None:
         """Get the next highest-priority issue to work on.
 
         Returns:
@@ -304,7 +303,7 @@ class GitHubQueue:
         rate = self._client.get_rate_limit()
         reset_at = rate.core.reset
         seconds_until_reset = max(
-            0, (reset_at - datetime.now(timezone.utc)).total_seconds()
+            0, (reset_at - datetime.now(UTC)).total_seconds()
         )
 
         return {
@@ -369,7 +368,7 @@ class GitHubQueue:
                 return True
 
             reset_at = rate.core.reset
-            wait_seconds = (reset_at - datetime.now(timezone.utc)).total_seconds()
+            wait_seconds = (reset_at - datetime.now(UTC)).total_seconds()
 
             if wait_seconds <= 0:
                 return True

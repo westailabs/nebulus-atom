@@ -1,5 +1,7 @@
-import pytest
 import os
+
+import pytest
+
 from tests.agent_harness.runner import AgentRunner
 
 SCRATCHPAD = ".scratchpad"
@@ -41,7 +43,7 @@ def test_file_creation(runner):
     assert result.exit_code == 0, "Agent process failed or crashed"
     assert os.path.exists(target_file), "Agent failed to create the target file"
 
-    with open(target_file, "r") as f:
+    with open(target_file) as f:
         content = f.read().strip()
     assert "passed" in content, f"File content mismatch. Got: {content}"
 

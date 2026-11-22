@@ -1,6 +1,7 @@
-import os
 import json
-from typing import Dict, Any, Optional
+import os
+from typing import Any
+
 from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -9,13 +10,13 @@ logger = setup_logger(__name__)
 class PreferenceService:
     def __init__(self, storage_path: str = ".nebulus_atom/preferences.json"):
         self.storage_path = os.path.join(os.getcwd(), storage_path)
-        self.preferences: Dict[str, Any] = {}
+        self.preferences: dict[str, Any] = {}
         self._load_preferences()
 
     def _load_preferences(self):
         if os.path.exists(self.storage_path):
             try:
-                with open(self.storage_path, "r") as f:
+                with open(self.storage_path) as f:
                     self.preferences = json.load(f)
                 logger.info(f"Loaded preferences from {self.storage_path}")
             except Exception as e:
@@ -38,10 +39,10 @@ class PreferenceService:
         self._save_preferences()
         return f"Preference '{key}' set to '{value}'"
 
-    def get_preference(self, key: str) -> Optional[Any]:
+    def get_preference(self, key: str) -> Any | None:
         return self.preferences.get(key)
 
-    def get_all_preferences(self) -> Dict[str, Any]:
+    def get_all_preferences(self) -> dict[str, Any]:
         return self.preferences
 
     def get_context_string(self) -> str:

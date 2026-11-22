@@ -2,11 +2,11 @@
 
 import pytest
 
+from nebulus_atom.models.cognition import TaskComplexity
 from nebulus_atom.services.cognition_service import (
     CognitionService,
     CognitionServiceManager,
 )
-from nebulus_atom.models.cognition import TaskComplexity
 
 
 class TestCognitionService:

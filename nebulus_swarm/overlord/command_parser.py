@@ -3,7 +3,6 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class CommandType(Enum):
@@ -26,10 +25,10 @@ class Command:
     """Parsed command from a Slack message."""
 
     type: CommandType
-    repo: Optional[str] = None
-    issue_number: Optional[int] = None
-    pr_number: Optional[int] = None
-    minion_id: Optional[str] = None
+    repo: str | None = None
+    issue_number: int | None = None
+    pr_number: int | None = None
+    minion_id: str | None = None
     raw_text: str = ""
 
 
@@ -106,7 +105,7 @@ class CommandParser:
         ],
     }
 
-    def __init__(self, default_repo: Optional[str] = None):
+    def __init__(self, default_repo: str | None = None):
         """Initialize parser.
 
         Args:

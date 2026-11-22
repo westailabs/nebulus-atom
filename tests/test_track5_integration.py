@@ -8,7 +8,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from nebulus_swarm.overlord.dispatcher import DispatchContext, Dispatcher
 from nebulus_swarm.overlord.focus import build_focus_context
 from nebulus_swarm.overlord.governance import (
@@ -18,7 +17,6 @@ from nebulus_swarm.overlord.mission_brief import generate_mission_brief
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
 from nebulus_swarm.overlord.work_queue import Task, WorkQueue
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
-
 
 # --- Test helpers ---
 
@@ -297,6 +295,7 @@ def test_downstream_impact_logged(tmp_path):
 def test_halt_full_integration(mock_stop, mock_running, mock_queue):
     """Halt should cancel dispatched tasks and stop daemon."""
     from typer.testing import CliRunner
+
     from nebulus_atom.commands.overlord_commands import overlord_app
 
     runner = CliRunner()

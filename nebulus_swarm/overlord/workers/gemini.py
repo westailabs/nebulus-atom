@@ -11,7 +11,6 @@ import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
 
@@ -27,7 +26,7 @@ class GeminiWorkerConfig(WorkerConfig):
     default_model: str = "gemini-2.5-pro"
     model_overrides: dict[str, str] = field(default_factory=dict)
     timeout: int = 600
-    api_key: Optional[str] = None
+    api_key: str | None = None
     api_key_env: str = "GOOGLE_API_KEY"
 
 
@@ -43,7 +42,7 @@ class GeminiWorker(BaseWorker):
     def __init__(self, config: GeminiWorkerConfig) -> None:
         super().__init__(config)
         self._available = False
-        self._api_key: Optional[str] = None
+        self._api_key: str | None = None
 
         if config.enabled:
             self._api_key = config.api_key or os.environ.get(config.api_key_env)
@@ -66,7 +65,7 @@ class GeminiWorker(BaseWorker):
         prompt: str,
         project_path: Path,
         task_type: str = "feature",
-        model: Optional[str] = None,
+        model: str | None = None,
     ) -> WorkerResult:
         """Execute a prompt via the Google Generative AI SDK.
 
@@ -132,7 +131,7 @@ class GeminiWorker(BaseWorker):
             )
 
 
-def load_gemini_worker_config(raw_workers: dict) -> Optional[GeminiWorkerConfig]:
+def load_gemini_worker_config(raw_workers: dict) -> GeminiWorkerConfig | None:
     """Parse a Gemini worker config from the workers YAML section.
 
     Args:

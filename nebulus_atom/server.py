@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
+
 from nebulus_atom.controllers.agent_controller import AgentController
 from nebulus_atom.views.headless_view import HeadlessView
 

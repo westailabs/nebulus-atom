@@ -1,4 +1,5 @@
 import pytest
+
 from nebulus_atom.services.mcp_service import MCPService
 
 # Create a simple "echo" script to act as a mock MCP server

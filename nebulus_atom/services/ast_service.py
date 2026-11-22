@@ -1,6 +1,7 @@
 import ast
 import os
-from typing import Dict, List, Any
+from typing import Any
+
 from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -8,9 +9,9 @@ logger = setup_logger(__name__)
 
 class CodebaseMap:
     def __init__(self):
-        self.files: Dict[str, Any] = {}
+        self.files: dict[str, Any] = {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return self.files
 
 
@@ -19,7 +20,7 @@ class ASTService:
         self.root_dir = root_dir
         self.map = CodebaseMap()
 
-    def generate_map(self, target_dir: str = None) -> Dict[str, Any]:
+    def generate_map(self, target_dir: str = None) -> dict[str, Any]:
         """Scans the directory and generates a codebase map."""
         scan_dir = target_dir or self.root_dir
         logger.info(f"Generating AST map for {scan_dir}")
@@ -41,7 +42,7 @@ class ASTService:
                         continue
 
                     try:
-                        with open(full_path, "r", encoding="utf-8") as f:
+                        with open(full_path, encoding="utf-8") as f:
                             content = f.read()
 
                         tree = ast.parse(content)
@@ -54,7 +55,7 @@ class ASTService:
         self.map.files = result
         return result
 
-    def _analyze_tree(self, tree: ast.AST) -> Dict[str, Any]:
+    def _analyze_tree(self, tree: ast.AST) -> dict[str, Any]:
         info = {
             "classes": [],
             "functions": [],
@@ -103,7 +104,7 @@ class ASTService:
 
         return info
 
-    def find_symbol(self, symbol_name: str) -> List[Dict[str, Any]]:
+    def find_symbol(self, symbol_name: str) -> list[dict[str, Any]]:
         """Searches the generated map for a specific class or function."""
         if not self.map.files:
             self.generate_map()

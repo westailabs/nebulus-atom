@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, ContextManager
+from typing import Any, ContextManager
 
 
 class BaseView(ABC):
@@ -24,7 +24,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    async def print_telemetry(self, metrics: Dict[str, Any]):
+    async def print_telemetry(self, metrics: dict[str, Any]):
         """Displays performance telemetry."""
         pass
 
@@ -34,7 +34,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    async def print_plan(self, plan_data: Dict[str, Any]):
+    async def print_plan(self, plan_data: dict[str, Any]):
         """Displays the plan status."""
         pass
 

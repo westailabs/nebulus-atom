@@ -12,6 +12,8 @@ from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, Worker
 from nebulus_swarm.overlord.workers.claude import (
     ClaudeWorker,
     ClaudeWorkerConfig,
+)
+from nebulus_swarm.overlord.workers.claude import (
     load_worker_config as load_claude_worker_config,
 )
 from nebulus_swarm.overlord.workers.gemini import (
@@ -61,7 +63,7 @@ def load_all_workers(raw_workers: dict) -> dict[str, BaseWorker]:
     """
     workers: dict[str, BaseWorker] = {}
 
-    loaders: list[tuple[str, type[BaseWorker], Optional[WorkerConfig]]] = [
+    loaders: list[tuple[str, type[BaseWorker], WorkerConfig | None]] = [
         ("claude", ClaudeWorker, load_claude_worker_config(raw_workers)),
         ("gemini", GeminiWorker, load_gemini_worker_config(raw_workers)),
         ("local", LocalWorker, load_local_worker_config(raw_workers)),

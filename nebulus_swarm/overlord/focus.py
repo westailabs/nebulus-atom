@@ -10,7 +10,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +187,7 @@ def _parse_business_md(path: Path) -> dict:
     return result
 
 
-def _extract_section(content: str, heading_pattern: str) -> Optional[str]:
+def _extract_section(content: str, heading_pattern: str) -> str | None:
     """Extract content under a markdown heading matching a regex pattern.
 
     Args:

@@ -1,9 +1,9 @@
-import sqlite3
 import json
 import os
+import sqlite3
 import time
 import uuid
-from typing import List, Dict, Any
+from typing import Any
 
 
 class TelemetryService:
@@ -29,7 +29,7 @@ class TelemetryService:
         conn.commit()
         conn.close()
 
-    def log_event(self, session_id: str, event_type: str, content: Dict[str, Any]):
+    def log_event(self, session_id: str, event_type: str, content: dict[str, Any]):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         event_id = str(uuid.uuid4())
@@ -45,7 +45,7 @@ class TelemetryService:
     def log_thought(self, session_id: str, thought: str):
         self.log_event(session_id, "THOUGHT", {"text": thought})
 
-    def log_tool_call(self, session_id: str, tool_name: str, args: Dict[str, Any]):
+    def log_tool_call(self, session_id: str, tool_name: str, args: dict[str, Any]):
         self.log_event(session_id, "TOOL_CALL", {"tool": tool_name, "args": args})
 
     def log_tool_result(self, session_id: str, tool_name: str, result: str):
@@ -54,7 +54,7 @@ class TelemetryService:
     def log_error(self, session_id: str, tool_name: str, error: str):
         self.log_event(session_id, "ERROR", {"tool": tool_name, "error": error})
 
-    def get_trace(self, session_id: str) -> List[Dict[str, Any]]:
+    def get_trace(self, session_id: str) -> list[dict[str, Any]]:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()

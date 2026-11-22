@@ -35,7 +35,6 @@ from nebulus_atom.orchestrator.models import (
 )
 from nebulus_atom.orchestrator.router import ModelRouter
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -487,7 +486,7 @@ steps:
 
         assert job.status == JobStatus.COMPLETED
         # The tests step prompt should have contained the plan output
-        tests_prompt = [p for p in outputs.keys() if "FastAPI plan" in p]
+        tests_prompt = [p for p in outputs if "FastAPI plan" in p]
         assert len(tests_prompt) == 1, (
             "Context propagation: plan output should appear in tests prompt"
         )

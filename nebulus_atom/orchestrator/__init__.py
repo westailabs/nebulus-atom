@@ -14,7 +14,7 @@ Usage:
 """
 
 from .engine import WorkflowEngine
-from .models import Workflow, WorkflowStep, Job, JobStatus, StepResult
+from .models import Job, JobStatus, StepResult, Workflow, WorkflowStep
 
 __all__ = [
     "WorkflowEngine",

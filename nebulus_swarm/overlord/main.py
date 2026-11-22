@@ -5,7 +5,6 @@ import os
 import signal
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, Optional
 
 import aiohttp
 from aiohttp import web
@@ -20,9 +19,9 @@ from nebulus_swarm.logging import (
 )
 from nebulus_swarm.models.minion import Minion, MinionStatus
 from nebulus_swarm.overlord.command_parser import CommandType
-from nebulus_swarm.overlord.llm_parser import LLMCommandParser
 from nebulus_swarm.overlord.docker_manager import DockerManager
 from nebulus_swarm.overlord.github_queue import GitHubQueue
+from nebulus_swarm.overlord.llm_parser import LLMCommandParser
 from nebulus_swarm.overlord.model_router import ModelRouter
 from nebulus_swarm.overlord.slack_bot import SlackBot
 from nebulus_swarm.overlord.state import OverlordState
@@ -53,7 +52,7 @@ class PendingQuestion:
     question_text: str
     thread_ts: str  # Slack thread timestamp for matching replies
     asked_at: datetime = field(default_factory=datetime.now)
-    answer: Optional[str] = None
+    answer: str | None = None
     answered: bool = False
 
 
@@ -97,7 +96,7 @@ class Overlord:
         )
 
         # GitHub queue scanner (only if we have watched repos)
-        self.github_queue: Optional[GitHubQueue] = None
+        self.github_queue: GitHubQueue | None = None
         if config.github.watched_repos:
             self.github_queue = GitHubQueue(
                 token=config.github.token,
@@ -105,16 +104,16 @@ class Overlord:
             )
 
         # Health check server
-        self._health_app: Optional[web.Application] = None
-        self._health_runner: Optional[web.AppRunner] = None
+        self._health_app: web.Application | None = None
+        self._health_runner: web.AppRunner | None = None
 
         # Background tasks
-        self._watchdog_task: Optional[asyncio.Task] = None
-        self._cleanup_task: Optional[asyncio.Task] = None
-        self._cron_task: Optional[asyncio.Task] = None
+        self._watchdog_task: asyncio.Task | None = None
+        self._cleanup_task: asyncio.Task | None = None
+        self._cron_task: asyncio.Task | None = None
 
         # PR reviewer (if enabled)
-        self._reviewer: Optional[ReviewWorkflow] = None
+        self._reviewer: ReviewWorkflow | None = None
         if config.reviewer.enabled:
             review_config = ReviewConfig(
                 github_token=config.github.token,
@@ -133,7 +132,7 @@ class Overlord:
         self._cron_schedule = config.cron.schedule or DEFAULT_CRON_SCHEDULE
 
         # Pending questions from Minions
-        self._pending_questions: Dict[str, PendingQuestion] = {}
+        self._pending_questions: dict[str, PendingQuestion] = {}
 
         # Model router (for multi-LLM routing)
         self.router = ModelRouter(config.routing)
@@ -879,7 +878,7 @@ class Overlord:
                         logger.warning(f"LLM warm-up: status {resp.status}")
                         return False
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("LLM warm-up: timeout")
             return False
         except Exception as e:
@@ -1048,7 +1047,7 @@ class Overlord:
                     await asyncio.wait_for(task, timeout=5)
                 except asyncio.CancelledError:
                     pass
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     logger.warning(f"Timeout waiting for {name} task to cancel")
 
         # Close GitHub queue client

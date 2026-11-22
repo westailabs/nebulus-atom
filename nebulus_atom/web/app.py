@@ -1,7 +1,8 @@
-import streamlit as st
-import requests
 import os
 import time
+
+import requests
+import streamlit as st
 
 # Configuration
 API_URL = "http://nebulus-atom-core:8000"

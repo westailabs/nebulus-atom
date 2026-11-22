@@ -7,7 +7,6 @@ and system load. Supervisor uses this to adjust timeouts and throttle.
 import logging
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 import requests
 
@@ -46,7 +45,7 @@ class HealthStatus:
 class HealthConfig:
     """Configuration for health client."""
 
-    url: Optional[str] = None
+    url: str | None = None
     timeout: int = DEFAULT_TIMEOUT
 
     @classmethod
@@ -84,7 +83,7 @@ class HealthClient:
         available=False,
     )
 
-    def __init__(self, config: Optional[HealthConfig] = None):
+    def __init__(self, config: HealthConfig | None = None):
         """Initialize health client.
 
         Args:
@@ -131,7 +130,7 @@ class HealthClient:
             return self.DEFAULT_STATUS
 
     def calculate_timeout_multiplier(
-        self, status: Optional[HealthStatus] = None
+        self, status: HealthStatus | None = None
     ) -> float:
         """Calculate timeout multiplier based on thermal state.
 
@@ -153,7 +152,7 @@ class HealthClient:
         else:
             return 1.0  # Normal
 
-    def should_pause_dispatch(self, status: Optional[HealthStatus] = None) -> bool:
+    def should_pause_dispatch(self, status: HealthStatus | None = None) -> bool:
         """Check if dispatch should be paused due to thermal state.
 
         Args:
@@ -166,7 +165,7 @@ class HealthClient:
             status = self.get_status()
         return status.is_critical
 
-    def should_switch_model(self, status: Optional[HealthStatus] = None) -> bool:
+    def should_switch_model(self, status: HealthStatus | None = None) -> bool:
         """Check if should switch to smaller model due to VRAM pressure.
 
         Args:
@@ -181,7 +180,7 @@ class HealthClient:
 
 
 # Cached singleton
-_health_client: Optional[HealthClient] = None
+_health_client: HealthClient | None = None
 
 
 def get_health_client() -> HealthClient:

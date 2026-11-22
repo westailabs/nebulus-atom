@@ -5,8 +5,9 @@ import logging
 import os
 import re
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from nebulus_swarm.minion.agent.minion_agent import ToolResult
 from nebulus_swarm.overlord.scope import ScopeConfig
@@ -29,9 +30,9 @@ class ToolExecutor:
     def __init__(
         self,
         workspace: Path,
-        skill_loader: Optional[Callable[[], List[Dict[str, Any]]]] = None,
-        skill_getter: Optional[Callable[[str], Optional[str]]] = None,
-        scope: Optional[ScopeConfig] = None,
+        skill_loader: Callable[[], list[dict[str, Any]]] | None = None,
+        skill_getter: Callable[[str], str | None] | None = None,
+        scope: ScopeConfig | None = None,
     ):
         """Initialize tool executor.
 
@@ -47,9 +48,9 @@ class ToolExecutor:
         self._skill_getter = skill_getter
 
         # Track loaded skills for context
-        self._loaded_skills: List[str] = []
+        self._loaded_skills: list[str] = []
 
-    def execute(self, name: str, arguments: Dict[str, Any]) -> ToolResult:
+    def execute(self, name: str, arguments: dict[str, Any]) -> ToolResult:
         """Execute a tool by name.
 
         Args:
@@ -119,13 +120,13 @@ class ToolExecutor:
 
         return resolved
 
-    def _check_write_scope(self, path: str) -> Optional[str]:
+    def _check_write_scope(self, path: str) -> str | None:
         """Check if a write to path is allowed by scope. Returns error or None."""
         if self.scope.is_write_allowed(path):
             return None
         return self.scope.violation_message(path)
 
-    def _read_file(self, args: Dict[str, Any]) -> ToolResult:
+    def _read_file(self, args: dict[str, Any]) -> ToolResult:
         """Read file contents."""
         path = args.get("path", "")
         start_line = args.get("start_line")
@@ -187,7 +188,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _write_file(self, args: Dict[str, Any]) -> ToolResult:
+    def _write_file(self, args: dict[str, Any]) -> ToolResult:
         """Write content to a file."""
         path = args.get("path", "")
         content = args.get("content", "")
@@ -227,7 +228,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _edit_file(self, args: Dict[str, Any]) -> ToolResult:
+    def _edit_file(self, args: dict[str, Any]) -> ToolResult:
         """Edit a file by replacing text."""
         path = args.get("path", "")
         old_text = args.get("old_text", "")
@@ -287,7 +288,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _list_directory(self, args: Dict[str, Any]) -> ToolResult:
+    def _list_directory(self, args: dict[str, Any]) -> ToolResult:
         """List directory contents."""
         path = args.get("path", ".")
         recursive = args.get("recursive", False)
@@ -352,7 +353,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _search_files(self, args: Dict[str, Any]) -> ToolResult:
+    def _search_files(self, args: dict[str, Any]) -> ToolResult:
         """Search for pattern in files."""
         pattern = args.get("pattern", "")
         path = args.get("path", ".")
@@ -440,7 +441,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _glob_files(self, args: Dict[str, Any]) -> ToolResult:
+    def _glob_files(self, args: dict[str, Any]) -> ToolResult:
         """Find files matching a glob pattern."""
         pattern = args.get("pattern", "")
 
@@ -477,7 +478,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _run_command(self, args: Dict[str, Any]) -> ToolResult:
+    def _run_command(self, args: dict[str, Any]) -> ToolResult:
         """Execute a shell command."""
         command = args.get("command", "")
         timeout = args.get("timeout", DEFAULT_COMMAND_TIMEOUT)
@@ -538,7 +539,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _task_complete(self, args: Dict[str, Any]) -> ToolResult:
+    def _task_complete(self, args: dict[str, Any]) -> ToolResult:
         """Handle task completion - just returns success."""
         summary = args.get("summary", "Task completed")
         return ToolResult(
@@ -548,7 +549,7 @@ class ToolExecutor:
             output=summary,
         )
 
-    def _task_blocked(self, args: Dict[str, Any]) -> ToolResult:
+    def _task_blocked(self, args: dict[str, Any]) -> ToolResult:
         """Handle task blocked - just returns success."""
         reason = args.get("reason", "Task blocked")
         return ToolResult(
@@ -558,7 +559,7 @@ class ToolExecutor:
             output=reason,
         )
 
-    def _list_skills(self, args: Dict[str, Any]) -> ToolResult:
+    def _list_skills(self, args: dict[str, Any]) -> ToolResult:
         """List available skills."""
         if not self._skill_loader:
             return ToolResult(
@@ -600,7 +601,7 @@ class ToolExecutor:
                 error=str(e),
             )
 
-    def _use_skill(self, args: Dict[str, Any]) -> ToolResult:
+    def _use_skill(self, args: dict[str, Any]) -> ToolResult:
         """Load a skill's instructions."""
         skill_name = args.get("skill_name", "")
 
@@ -643,6 +644,6 @@ class ToolExecutor:
             )
 
     @property
-    def loaded_skills(self) -> List[str]:
+    def loaded_skills(self) -> list[str]:
         """Get list of loaded skills."""
         return self._loaded_skills.copy()

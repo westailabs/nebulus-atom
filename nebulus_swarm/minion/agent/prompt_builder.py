@@ -1,7 +1,6 @@
 """Prompt builder for Minion agent."""
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 
 @dataclass
@@ -12,7 +11,7 @@ class IssueContext:
     number: int
     title: str
     body: str
-    labels: List[str]
+    labels: list[str]
     author: str
 
 
@@ -100,7 +99,7 @@ Begin by exploring the codebase to understand its structure, then implement the 
 
 def build_system_prompt(
     issue: IssueContext,
-    skill_instructions: Optional[str] = None,
+    skill_instructions: str | None = None,
 ) -> str:
     """Build the system prompt for the Minion agent.
 

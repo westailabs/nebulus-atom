@@ -1,9 +1,8 @@
+import os
 import subprocess
 import sys
 import time
-import os
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -15,7 +14,7 @@ class RunResult:
 
 
 class AgentRunner:
-    def __init__(self, cwd: Optional[str] = None):
+    def __init__(self, cwd: str | None = None):
         self.cwd = cwd or os.getcwd()
         self.python_executable = sys.executable
 

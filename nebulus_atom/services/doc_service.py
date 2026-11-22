@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+
 from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -9,7 +9,7 @@ class DocService:
     def __init__(self, doc_root: str = "docs"):
         self.doc_root = os.path.join(os.getcwd(), doc_root)
 
-    def list_docs(self) -> List[str]:
+    def list_docs(self) -> list[str]:
         doc_files = []
         for dirpath, _, filenames in os.walk(self.doc_root):
             for filename in filenames:
@@ -20,7 +20,7 @@ class DocService:
                     doc_files.append(rel_path)
         return sorted(doc_files)
 
-    def read_doc(self, rel_path: str) -> Optional[str]:
+    def read_doc(self, rel_path: str) -> str | None:
         # Validate path to prevent directory traversal
         abs_path = os.path.abspath(os.path.join(self.doc_root, rel_path))
         if not abs_path.startswith(self.doc_root):
@@ -31,7 +31,7 @@ class DocService:
             return None
 
         try:
-            with open(abs_path, "r", encoding="utf-8") as f:
+            with open(abs_path, encoding="utf-8") as f:
                 return f.read()
         except Exception as e:
             logger.error(f"Failed to read doc {rel_path}: {e}")

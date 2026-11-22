@@ -9,10 +9,11 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any
 
 from nebulus_atom.utils.logger import setup_logger
-from .models import WorkflowStep, StepResult, StepStatus
+
+from .models import StepResult, StepStatus, WorkflowStep
 from .router import ModelRouter
 
 logger = setup_logger(__name__)
@@ -24,7 +25,7 @@ class StepExecutor:
     def __init__(
         self,
         openai_service,
-        model_router: Optional[ModelRouter] = None,
+        model_router: ModelRouter | None = None,
     ):
         self._openai = openai_service
         self._router = model_router or ModelRouter()
@@ -32,7 +33,7 @@ class StepExecutor:
     async def execute(
         self,
         step: WorkflowStep,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> StepResult:
         """
         Execute a step with rendered context.
@@ -73,7 +74,7 @@ class StepExecutor:
 
             logger.info(f"Step '{step.id}' completed in {result.duration_seconds:.1f}s")
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             result.status = StepStatus.FAILED
             result.error = f"Step timed out after {step.timeout_seconds}s"
             result.completed_at = datetime.utcnow()

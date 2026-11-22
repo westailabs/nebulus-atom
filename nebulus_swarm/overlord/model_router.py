@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from nebulus_swarm.overlord.registry import OverlordConfig
@@ -22,7 +22,7 @@ class ModelEndpoint:
     model: str
     tier: str  # "local", "cloud-fast", "cloud-heavy"
     concurrent: int = 1
-    health_check_url: Optional[str] = None
+    health_check_url: str | None = None
     _last_health_check: float = field(default=0.0, init=False, repr=False)
     _is_healthy: bool = field(default=True, init=False, repr=False)
 
@@ -58,7 +58,7 @@ class ModelRouter:
 
     def select_model(
         self, task_type: str, complexity: str = "medium", prefer_local: bool = True
-    ) -> Optional[ModelEndpoint]:
+    ) -> ModelEndpoint | None:
         """Select best available model for a task.
 
         Args:
@@ -132,7 +132,7 @@ class ModelRouter:
 
     def _get_healthy_endpoint(
         self, tier: str, prefer_local: bool
-    ) -> Optional[ModelEndpoint]:
+    ) -> ModelEndpoint | None:
         """Get a healthy endpoint from the target tier.
 
         Args:
@@ -188,7 +188,7 @@ class ModelRouter:
 
     def _fallback(
         self, preferred_tier: str, prefer_local: bool
-    ) -> Optional[ModelEndpoint]:
+    ) -> ModelEndpoint | None:
         """Find fallback endpoint when preferred tier unavailable.
 
         Fallback order:

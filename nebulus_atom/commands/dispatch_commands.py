@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
@@ -16,7 +14,7 @@ def dispatch_run(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Generate brief only, skip execution"
     ),
-    worker: Optional[str] = typer.Option(
+    worker: str | None = typer.Option(
         None, "--worker", "-w", help="Explicit worker override"
     ),
     skip_review: bool = typer.Option(
@@ -84,7 +82,7 @@ def dispatch_run(
 
 @dispatch_app.command("cleanup")
 def dispatch_cleanup(
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Filter by project"
     ),
     all_worktrees: bool = typer.Option(False, "--all", help="Clean up all worktrees"),

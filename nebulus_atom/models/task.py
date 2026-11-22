@@ -1,7 +1,6 @@
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
-import uuid
 
 
 class TaskStatus(Enum):
@@ -18,9 +17,9 @@ class Task:
     description: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     status: TaskStatus = TaskStatus.PENDING
-    result: Optional[str] = None
-    subtasks: List["Task"] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)  # List of Task IDs
+    result: str | None = None
+    subtasks: list["Task"] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)  # List of Task IDs
 
     def mark_complete(self, result: str = ""):
         self.status = TaskStatus.COMPLETED
@@ -60,9 +59,9 @@ class Task:
 class Plan:
     goal: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    tasks: List[Task] = field(default_factory=list)
+    tasks: list[Task] = field(default_factory=list)
 
-    def add_task(self, description: str, dependencies: List[str] = None) -> Task:
+    def add_task(self, description: str, dependencies: list[str] = None) -> Task:
         task = Task(description=description, dependencies=dependencies or [])
         self.tasks.append(task)
         return task

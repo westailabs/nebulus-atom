@@ -4,7 +4,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 import yaml
 
@@ -46,9 +45,9 @@ class ValidationResult:
     """Result of skill validation."""
 
     valid: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    security_flags: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    security_flags: list[str] = field(default_factory=list)
 
     @property
     def has_security_issues(self) -> bool:
@@ -79,7 +78,7 @@ class SkillValidator:
     # Required fields
     REQUIRED_FIELDS = ["name", "description", "instructions"]
 
-    def __init__(self, forbidden_patterns: Optional[List[tuple]] = None):
+    def __init__(self, forbidden_patterns: list[tuple] | None = None):
         """Initialize validator.
 
         Args:
@@ -217,7 +216,7 @@ class SkillValidator:
                 result.add_security_flag(f"Forbidden pattern: {description}")
 
 
-def is_skill_change(changed_files: List[str]) -> bool:
+def is_skill_change(changed_files: list[str]) -> bool:
     """Check if any changed files are in the skills directory.
 
     Args:
@@ -233,8 +232,8 @@ def is_skill_change(changed_files: List[str]) -> bool:
 
 
 def validate_skill_changes(
-    changed_files: List[str], workspace: Path
-) -> List[ValidationResult]:
+    changed_files: list[str], workspace: Path
+) -> list[ValidationResult]:
     """Validate all changed skill files.
 
     Args:

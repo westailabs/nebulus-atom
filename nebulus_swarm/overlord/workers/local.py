@@ -10,7 +10,6 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
 
@@ -27,7 +26,7 @@ class LocalWorkerConfig(WorkerConfig):
     model_overrides: dict[str, str] = field(default_factory=dict)
     timeout: int = 600
     endpoint: str = "http://localhost:5000/v1"
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class LocalWorker(BaseWorker):
@@ -57,7 +56,7 @@ class LocalWorker(BaseWorker):
         prompt: str,
         project_path: Path,
         task_type: str = "feature",
-        model: Optional[str] = None,
+        model: str | None = None,
     ) -> WorkerResult:
         """Execute a prompt via the OpenAI-compatible HTTP endpoint.
 
@@ -186,7 +185,7 @@ class LocalWorker(BaseWorker):
             return False
 
 
-def load_local_worker_config(raw_workers: dict) -> Optional[LocalWorkerConfig]:
+def load_local_worker_config(raw_workers: dict) -> LocalWorkerConfig | None:
     """Parse a local worker config from the workers YAML section.
 
     Args:

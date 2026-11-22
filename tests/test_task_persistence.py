@@ -1,8 +1,10 @@
 import os
 import shutil
+
 import pytest
-from nebulus_atom.services.task_service import TaskService, TaskServiceManager
+
 from nebulus_atom.models.task import TaskStatus
+from nebulus_atom.services.task_service import TaskService, TaskServiceManager
 
 
 @pytest.fixture

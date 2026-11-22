@@ -1,19 +1,20 @@
 """Tests for TurnProcessor - the core conversation turn handler."""
 
 import json
+
 import pytest
 
 pytest.importorskip("openai")
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
+
 from nebulus_atom.controllers.turn_processor import (
-    TurnProcessor,
     TurnCallbacks,
+    TurnProcessor,
     TurnResult,
 )
-from nebulus_atom.models.cognition import TaskComplexity, CognitionResult
-
+from nebulus_atom.models.cognition import CognitionResult, TaskComplexity
 
 # ---------------------------------------------------------------------------
 # Dataclass Tests

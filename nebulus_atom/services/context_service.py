@@ -1,5 +1,5 @@
-from typing import List, Dict
 import os
+
 from nebulus_atom.services.file_service import FileService
 
 
@@ -8,7 +8,7 @@ class ContextService:
     MAX_CONTEXT_CHARS = 32000
 
     def __init__(self):
-        self.pinned_files: List[str] = []
+        self.pinned_files: list[str] = []
 
     def pin_file(self, path: str) -> str:
         if not os.path.exists(path):
@@ -25,7 +25,7 @@ class ContextService:
             return f"Unpinned {path}"
         return f"{path} is not pinned."
 
-    def list_context(self) -> List[str]:
+    def list_context(self) -> list[str]:
         return self.pinned_files
 
     def get_context_string(self) -> str:
@@ -78,7 +78,7 @@ class ContextServiceManager:
     """Manages ContextService instances per session."""
 
     def __init__(self):
-        self.sessions: Dict[str, ContextService] = {}
+        self.sessions: dict[str, ContextService] = {}
 
     def get_service(self, session_id: str) -> ContextService:
         if session_id not in self.sessions:

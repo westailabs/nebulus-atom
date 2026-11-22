@@ -11,9 +11,9 @@ import asyncio
 import logging
 import os
 import signal
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from croniter import croniter
 
@@ -84,7 +84,7 @@ class OverlordDaemon:
         )
 
         # Slack bot (configured lazily via environment)
-        self.slack_bot: Optional[SlackBot] = None
+        self.slack_bot: SlackBot | None = None
 
         # Schedule config
         self.schedule = config.schedule or ScheduleConfig.default()
@@ -181,7 +181,7 @@ class OverlordDaemon:
     async def _scheduler_loop(self) -> None:
         """croniter-based task scheduling loop."""
         # Build next-fire times for each enabled task
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         schedule_iters: list[tuple[ScheduledTask, croniter]] = []
 
         for task in self.schedule.tasks:
@@ -211,7 +211,7 @@ class OverlordDaemon:
 
         try:
             while not self._shutdown_event.is_set():
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 next_fires = []
 
                 for task, cron_iter in schedule_iters:
@@ -224,7 +224,7 @@ class OverlordDaemon:
 
                 # Sleep until next fire time
                 sleep_seconds = max(
-                    0, (next_dt - datetime.now(timezone.utc)).total_seconds()
+                    0, (next_dt - datetime.now(UTC)).total_seconds()
                 )
                 logger.debug(
                     "Next task '%s' in %.0f seconds", next_task.name, sleep_seconds
@@ -235,7 +235,7 @@ class OverlordDaemon:
                         self._shutdown_event.wait(), timeout=sleep_seconds
                     )
                     break  # Shutdown was signaled
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass  # Time to fire
 
                 await self._execute_scheduled_task(next_task)
@@ -331,7 +331,7 @@ class OverlordDaemon:
                 try:
                     await asyncio.wait_for(self._shutdown_event.wait(), timeout=300)
                     break
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass
                 await self.proposal_manager.cleanup_expired()
         except asyncio.CancelledError:

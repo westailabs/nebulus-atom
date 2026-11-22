@@ -6,7 +6,6 @@ import subprocess
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +26,15 @@ class CheckResult:
     name: str
     status: CheckStatus
     message: str
-    details: Optional[str] = None
-    file_issues: List[str] = field(default_factory=list)
+    details: str | None = None
+    file_issues: list[str] = field(default_factory=list)
 
 
 @dataclass
 class ChecksReport:
     """Complete report of all automated checks."""
 
-    results: List[CheckResult] = field(default_factory=list)
+    results: list[CheckResult] = field(default_factory=list)
 
     @property
     def all_passed(self) -> bool:
@@ -117,7 +116,7 @@ class CheckRunner:
         """
         self.repo_path = Path(repo_path)
 
-    def run_all_checks(self, changed_files: List[str]) -> ChecksReport:
+    def run_all_checks(self, changed_files: list[str]) -> ChecksReport:
         """Run all automated checks.
 
         Args:
@@ -199,7 +198,7 @@ class CheckRunner:
                 message=f"Error running tests: {e}",
             )
 
-    def check_ruff(self, python_files: List[str]) -> CheckResult:
+    def check_ruff(self, python_files: list[str]) -> CheckResult:
         """Run ruff linter on changed files."""
         if not python_files:
             return CheckResult(
@@ -251,7 +250,7 @@ class CheckRunner:
                 message=f"Error running ruff: {e}",
             )
 
-    def check_security_patterns(self, python_files: List[str]) -> CheckResult:
+    def check_security_patterns(self, python_files: list[str]) -> CheckResult:
         """Check for security anti-patterns."""
         if not python_files:
             return CheckResult(
@@ -292,7 +291,7 @@ class CheckRunner:
                 file_issues=issues,
             )
 
-    def check_complexity(self, python_files: List[str]) -> CheckResult:
+    def check_complexity(self, python_files: list[str]) -> CheckResult:
         """Check code complexity using radon (if available)."""
         if not python_files:
             return CheckResult(
@@ -362,7 +361,7 @@ class CheckRunner:
                 message=f"Could not check complexity: {e}",
             )
 
-    def check_file_sizes(self, changed_files: List[str]) -> CheckResult:
+    def check_file_sizes(self, changed_files: list[str]) -> CheckResult:
         """Check for overly large files."""
         MAX_FILE_SIZE = 500 * 1024  # 500 KB
         MAX_LINE_COUNT = 1000
@@ -409,7 +408,7 @@ class CheckRunner:
                 file_issues=issues,
             )
 
-    def check_skill_changes(self, changed_files: List[str]) -> CheckResult:
+    def check_skill_changes(self, changed_files: list[str]) -> CheckResult:
         """Check for skill file changes and validate them.
 
         Skill changes require special handling:

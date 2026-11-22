@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 from nebulus_swarm.reviewer.checks import CheckRunner, ChecksReport
 from nebulus_swarm.reviewer.llm_review import LLMReviewer, create_review_summary
@@ -38,10 +37,10 @@ class WorkflowResult:
 
     pr_details: PRDetails
     llm_result: ReviewResult
-    checks_report: Optional[ChecksReport] = None
+    checks_report: ChecksReport | None = None
     review_posted: bool = False
     merged: bool = False
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def summary(self) -> str:
@@ -79,8 +78,8 @@ class ReviewWorkflow:
             config: Workflow configuration.
         """
         self.config = config
-        self._pr_reviewer: Optional[PRReviewer] = None
-        self._llm_reviewer: Optional[LLMReviewer] = None
+        self._pr_reviewer: PRReviewer | None = None
+        self._llm_reviewer: LLMReviewer | None = None
 
     @property
     def pr_reviewer(self) -> PRReviewer:
@@ -107,7 +106,7 @@ class ReviewWorkflow:
         pr_number: int,
         post_review: bool = True,
         auto_merge: bool = False,
-        repo_path: Optional[str] = None,
+        repo_path: str | None = None,
     ) -> WorkflowResult:
         """Run complete review workflow on a PR.
 
@@ -216,7 +215,7 @@ class ReviewWorkflow:
         pr_number: int,
         pr_details: PRDetails,
         llm_result: ReviewResult,
-        checks_summary: Optional[str] = None,
+        checks_summary: str | None = None,
     ) -> bool:
         """Post review to GitHub.
 
@@ -251,7 +250,7 @@ class ReviewWorkflow:
         repo: str,
         pr_number: int,
         action: str,
-    ) -> Optional[WorkflowResult]:
+    ) -> WorkflowResult | None:
         """Handle PR review triggered by webhook.
 
         Args:

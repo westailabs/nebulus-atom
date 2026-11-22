@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from nebulus_atom.services.skill_service import SkillService
 
 

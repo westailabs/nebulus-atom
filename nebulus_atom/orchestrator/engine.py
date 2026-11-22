@@ -12,16 +12,17 @@ Responsibilities:
 from __future__ import annotations
 
 import asyncio
-import sqlite3
 import json
+import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from nebulus_atom.utils.logger import setup_logger
-from .models import Workflow, Job, JobStatus, StepResult, StepStatus
+
 from .executor import StepExecutor
+from .models import Job, JobStatus, StepResult, StepStatus, Workflow
 from .router import ModelRouter
 
 logger = setup_logger(__name__)
@@ -42,14 +43,14 @@ class WorkflowEngine:
     def __init__(
         self,
         openai_service,
-        db_path: Optional[Path] = None,
-        model_router: Optional[ModelRouter] = None,
+        db_path: Path | None = None,
+        model_router: ModelRouter | None = None,
     ):
         self._openai = openai_service
         self._db_path = db_path or DEFAULT_DB_PATH
         self._router = model_router or ModelRouter()
         self._executor = StepExecutor(openai_service, self._router)
-        self._jobs: Dict[str, Job] = {}
+        self._jobs: dict[str, Job] = {}
         self._ensure_db()
 
     # -------------------------------------------------------------------------
@@ -59,7 +60,7 @@ class WorkflowEngine:
     async def submit(
         self,
         workflow: Workflow,
-        inputs: Optional[Dict[str, Any]] = None,
+        inputs: dict[str, Any] | None = None,
     ) -> Job:
         """
         Submit a workflow for execution.
@@ -88,7 +89,7 @@ class WorkflowEngine:
     async def submit_and_wait(
         self,
         workflow: Workflow,
-        inputs: Optional[Dict[str, Any]] = None,
+        inputs: dict[str, Any] | None = None,
     ) -> Job:
         """Submit and block until the job completes."""
         job = Job(
@@ -100,13 +101,13 @@ class WorkflowEngine:
         await self._execute(workflow, job)
         return job
 
-    def get_job(self, job_id: str) -> Optional[Job]:
+    def get_job(self, job_id: str) -> Job | None:
         """Get job by ID (from memory or DB)."""
         if job_id in self._jobs:
             return self._jobs[job_id]
         return self._load_job(job_id)
 
-    def list_jobs(self, limit: int = 20) -> List[Job]:
+    def list_jobs(self, limit: int = 20) -> list[Job]:
         """List recent jobs from DB."""
         return self._load_recent_jobs(limit)
 
@@ -150,7 +151,7 @@ class WorkflowEngine:
                 )
 
                 tasks = [self._executor.execute(step, context) for step in ready]
-                results: List[StepResult] = await asyncio.gather(
+                results: list[StepResult] = await asyncio.gather(
                     *tasks, return_exceptions=True
                 )
 
@@ -240,7 +241,7 @@ class WorkflowEngine:
                 (job.id, job.workflow_name, json.dumps(job.to_dict()), now, now),
             )
 
-    def _load_job(self, job_id: str) -> Optional[Job]:
+    def _load_job(self, job_id: str) -> Job | None:
         with self._get_db() as conn:
             row = conn.execute(
                 "SELECT data FROM jobs WHERE id = ?", (job_id,)
@@ -249,7 +250,7 @@ class WorkflowEngine:
             return None
         return self._job_from_dict(json.loads(row["data"]))
 
-    def _load_recent_jobs(self, limit: int) -> List[Job]:
+    def _load_recent_jobs(self, limit: int) -> list[Job]:
         with self._get_db() as conn:
             rows = conn.execute(
                 "SELECT data FROM jobs ORDER BY updated_at DESC LIMIT ?", (limit,)

@@ -18,7 +18,6 @@ from nebulus_swarm.overlord.proposal_manager import (
 )
 from nebulus_swarm.overlord.slack_bot import SlackBot
 
-
 # --- Store Tests ---
 
 

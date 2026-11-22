@@ -7,8 +7,8 @@ import pytest
 
 pytest.importorskip("openai")
 
-from nebulus_swarm.minion.github_client import GitHubClient, IssueDetails
 from nebulus_swarm.minion.git_ops import GitOps, GitResult
+from nebulus_swarm.minion.github_client import GitHubClient, IssueDetails
 from nebulus_swarm.minion.main import Minion, MinionConfig
 from nebulus_swarm.minion.reporter import EventType, Reporter, ReportPayload
 

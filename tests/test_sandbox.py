@@ -1,6 +1,8 @@
-import pytest
-from unittest.mock import MagicMock, patch
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nebulus_atom.services.docker_service import DockerService
 
 

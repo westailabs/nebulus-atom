@@ -1,5 +1,6 @@
 import os
 import time
+
 from nebulus_atom.config import Config
 from nebulus_atom.utils.logger import setup_logger
 
@@ -16,7 +17,7 @@ def test_logger_file_creation():
     # Verification
     assert os.path.exists(Config.LOG_FILE)
 
-    with open(Config.LOG_FILE, "r") as f:
+    with open(Config.LOG_FILE) as f:
         content = f.read()
         assert test_message in content
         assert "INFO" in content

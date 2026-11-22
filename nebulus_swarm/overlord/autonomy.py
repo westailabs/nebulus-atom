@@ -27,7 +27,7 @@ class AutonomyConfig:
 class AutonomyEngine:
     """Manages autonomy levels and action approval decisions."""
 
-    def __init__(self, config: "OverlordConfig"):
+    def __init__(self, config: OverlordConfig):
         """Initialize the autonomy engine.
 
         Args:
@@ -49,7 +49,7 @@ class AutonomyEngine:
         return self.config.autonomy_global
 
     def can_auto_execute(
-        self, action: str, scope: "ActionScope", project: str | None = None
+        self, action: str, scope: ActionScope, project: str | None = None
     ) -> bool:
         """Check if action can auto-execute under current autonomy.
 
@@ -78,7 +78,7 @@ class AutonomyEngine:
         return False
 
     def should_propose(
-        self, action: str, scope: "ActionScope", project: str | None = None
+        self, action: str, scope: ActionScope, project: str | None = None
     ) -> bool:
         """Check if Overlord should proactively propose this action.
 
@@ -106,7 +106,7 @@ class AutonomyEngine:
 
         return False
 
-    def should_escalate(self, scope: "ActionScope") -> bool:
+    def should_escalate(self, scope: ActionScope) -> bool:
         """Check if action requires escalation regardless of autonomy level.
 
         Certain actions always require approval:
@@ -145,7 +145,7 @@ class AutonomyEngine:
             project=project, level=level, pre_approved_actions=pre_approved
         )
 
-    def _is_safe_local(self, scope: "ActionScope") -> bool:
+    def _is_safe_local(self, scope: ActionScope) -> bool:
         """Check if scope represents a safe local operation.
 
         Safe operations are:
@@ -167,7 +167,7 @@ class AutonomyEngine:
             and scope.estimated_impact in ("low", "medium")
         )
 
-    def _is_pre_approved(self, action: str, scope: "ActionScope") -> bool:
+    def _is_pre_approved(self, action: str, scope: ActionScope) -> bool:
         """Check if action is in the pre-approved list for affected projects.
 
         Args:
@@ -189,7 +189,7 @@ class AutonomyEngine:
         return True
 
 
-def get_autonomy_summary(config: "OverlordConfig") -> dict[str, str]:
+def get_autonomy_summary(config: OverlordConfig) -> dict[str, str]:
     """Get a summary of autonomy levels across all projects.
 
     Args:

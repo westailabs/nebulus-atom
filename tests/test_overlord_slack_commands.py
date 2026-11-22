@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -10,12 +9,12 @@ import pytest
 
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
 from nebulus_swarm.overlord.slack_commands import (
-    KNOWN_COMMANDS,
-    CommandValidator,
-    SlackCommandRouter,
     _RE_AGENT_UPDATE,
     _RE_STRUCTURED_REPORT,
     _RE_UPDATE,
+    KNOWN_COMMANDS,
+    CommandValidator,
+    SlackCommandRouter,
     _format_ecosystem_status,
     _format_project_status,
     _format_scan_detail,
@@ -529,7 +528,7 @@ class TestLLMFallback:
         ):
             mock_client = AsyncMock()
             mock_client.chat.completions.create = AsyncMock(
-                side_effect=asyncio.TimeoutError()
+                side_effect=TimeoutError()
             )
             router._llm_client = mock_client
 
@@ -1412,7 +1411,7 @@ class TestLLMFallbackDiagnostics:
         ):
             mock_client = AsyncMock()
             mock_client.chat.completions.create = AsyncMock(
-                side_effect=asyncio.TimeoutError()
+                side_effect=TimeoutError()
             )
             router._llm_client = mock_client
 

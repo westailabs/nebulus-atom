@@ -19,7 +19,6 @@ from nebulus_swarm.overlord.work_queue import (
 )
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
 
-
 # --- Fixtures ---
 
 

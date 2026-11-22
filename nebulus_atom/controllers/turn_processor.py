@@ -7,15 +7,16 @@ Integrates cognitive analysis for complex task handling.
 
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Any, Callable
+from typing import Any
 
+from nebulus_atom.models.cognition import CognitionResult, TaskComplexity
 from nebulus_atom.services.openai_service import OpenAIService
 from nebulus_atom.services.response_parser import ResponseParser
 from nebulus_atom.services.tool_executor import ToolExecutor
-from nebulus_atom.models.cognition import TaskComplexity, CognitionResult
-from nebulus_atom.views.base_view import BaseView
 from nebulus_atom.utils.logger import setup_logger
+from nebulus_atom.views.base_view import BaseView
 
 logger = setup_logger(__name__)
 
@@ -24,9 +25,9 @@ logger = setup_logger(__name__)
 class TurnCallbacks:
     """Callbacks for state changes during turn processing."""
 
-    on_tdd_start: Optional[Callable[[str], None]] = None
-    on_auto_mode_start: Optional[Callable[[], None]] = None
-    on_cognition_analysis: Optional[Callable[[CognitionResult], None]] = None
+    on_tdd_start: Callable[[str], None] | None = None
+    on_auto_mode_start: Callable[[], None] | None = None
+    on_cognition_analysis: Callable[[CognitionResult], None] | None = None
 
 
 @dataclass
@@ -36,7 +37,7 @@ class TurnResult:
     finished: bool = True
     started_tdd: bool = False
     started_auto_mode: bool = False
-    tdd_goal: Optional[str] = None
+    tdd_goal: str | None = None
 
 
 class TurnProcessor:
@@ -46,7 +47,7 @@ class TurnProcessor:
         self,
         openai_service: OpenAIService,
         view: BaseView,
-        response_parser: Optional[ResponseParser] = None,
+        response_parser: ResponseParser | None = None,
     ) -> None:
         """
         Initialize the turn processor.
@@ -64,8 +65,8 @@ class TurnProcessor:
         self,
         history: Any,
         session_id: str,
-        pinned_content: Optional[str] = None,
-        callbacks: Optional[TurnCallbacks] = None,
+        pinned_content: str | None = None,
+        callbacks: TurnCallbacks | None = None,
         enable_cognition: bool = True,
     ) -> TurnResult:
         """
@@ -114,9 +115,9 @@ class TurnProcessor:
 
     async def _analyze_task(
         self,
-        messages: List[Dict[str, Any]],
+        messages: list[dict[str, Any]],
         session_id: str,
-    ) -> Optional[CognitionResult]:
+    ) -> CognitionResult | None:
         """
         Analyze the last user message for task complexity.
 
@@ -219,11 +220,11 @@ class TurnProcessor:
 
     async def _process_single_iteration(
         self,
-        messages: List[Dict[str, Any]],
+        messages: list[dict[str, Any]],
         history: Any,
         session_id: str,
         callbacks: TurnCallbacks,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Process a single iteration within a turn.
 
@@ -251,8 +252,8 @@ class TurnProcessor:
                 tools=None,
             )
             full_response = ""
-            tool_calls: List[Dict[str, Any]] = []
-            tool_calls_map: Dict[int, Dict[str, Any]] = {}
+            tool_calls: list[dict[str, Any]] = []
+            tool_calls_map: dict[int, dict[str, Any]] = {}
 
             stream_buffer = ""
             stream_decision_made = False
@@ -334,9 +335,9 @@ class TurnProcessor:
 
     def _process_delta_tool_calls(
         self,
-        delta_tool_calls: List[Any],
-        tool_calls_map: Dict[int, Dict[str, Any]],
-    ) -> Dict[int, Dict[str, Any]]:
+        delta_tool_calls: list[Any],
+        tool_calls_map: dict[int, dict[str, Any]],
+    ) -> dict[int, dict[str, Any]]:
         """Process streaming tool call deltas."""
         for tc in delta_tool_calls:
             if tc.index not in tool_calls_map:
@@ -354,8 +355,8 @@ class TurnProcessor:
         return tool_calls_map
 
     def _normalize_extracted_calls(
-        self, extracted_list: List[Dict[str, Any]], session_id: str
-    ) -> List[Dict[str, Any]]:
+        self, extracted_list: list[dict[str, Any]], session_id: str
+    ) -> list[dict[str, Any]]:
         """Normalize extracted tool calls and log thoughts."""
         tool_calls = []
         for i, extracted in enumerate(extracted_list):
@@ -380,13 +381,13 @@ class TurnProcessor:
 
     async def _handle_tool_calls(
         self,
-        tool_calls: List[Dict[str, Any]],
+        tool_calls: list[dict[str, Any]],
         full_response: str,
         stream_started: bool,
         history: Any,
         session_id: str,
         callbacks: TurnCallbacks,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle tool call execution."""
         history.add(
             "assistant",
@@ -444,10 +445,10 @@ class TurnProcessor:
     async def _execute_single_tool(
         self,
         name: str,
-        args: Dict[str, Any],
+        args: dict[str, Any],
         session_id: str,
         callbacks: TurnCallbacks,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """
         Execute a single tool and return output with any special action flag.
 
@@ -486,7 +487,7 @@ class TurnProcessor:
         stream_started: bool,
         history: Any,
         session_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle a text-only response (no tool calls)."""
         if full_response.strip():
             cleaned = self._parser.clean_response_text(full_response)

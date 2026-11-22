@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
@@ -15,7 +13,7 @@ focus_app = typer.Typer(help="Ecosystem-aware queries with business context.")
 def focus_query(
     query: str = typer.Argument(..., help="Natural language question"),
     role: str = typer.Option("pm", "--role", help="Role: pm or default"),
-    worker: Optional[str] = typer.Option(
+    worker: str | None = typer.Option(
         None, "--worker", "-w", help="Worker to use for the query"
     ),
 ) -> None:

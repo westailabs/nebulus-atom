@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.registry import (
     OverlordConfig,
@@ -38,8 +37,8 @@ class TestHealth:
     """Test infrastructure state for a single project."""
 
     has_tests: bool = False
-    test_command: Optional[str] = None
-    last_run: Optional[str] = None  # placeholder for Phase 2
+    test_command: str | None = None
+    last_run: str | None = None  # placeholder for Phase 2
 
 
 @dataclass
@@ -134,7 +133,7 @@ def _detect_stale_branches(project_path: Path, days: int = 30) -> list[str]:
     if not branches_output:
         return stale
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
 
     for line in branches_output.splitlines():
         parts = line.rsplit(" ", 3)
@@ -154,7 +153,7 @@ def _detect_stale_branches(project_path: Path, days: int = 30) -> list[str]:
     return stale
 
 
-def detect_test_command(project_path: Path) -> Optional[str]:
+def detect_test_command(project_path: Path) -> str | None:
     """Detect the test command for a project via heuristics.
 
     Checks for:

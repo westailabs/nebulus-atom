@@ -5,7 +5,7 @@ Centralizes base tool definitions and provides merging with dynamic skills
 and MCP tools.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 from nebulus_atom.utils.logger import setup_logger
 
@@ -17,9 +17,9 @@ class ToolRegistry:
 
     def __init__(self) -> None:
         """Initialize with base tool definitions."""
-        self._base_tools: List[Dict[str, Any]] = self._build_base_tools()
+        self._base_tools: list[dict[str, Any]] = self._build_base_tools()
 
-    def _build_base_tools(self) -> List[Dict[str, Any]]:
+    def _build_base_tools(self) -> list[dict[str, Any]]:
         """Build the list of base tool definitions."""
         return [
             {
@@ -147,15 +147,15 @@ class ToolRegistry:
         ]
 
     @property
-    def base_tools(self) -> List[Dict[str, Any]]:
+    def base_tools(self) -> list[dict[str, Any]]:
         """Get the base tool definitions."""
         return self._base_tools
 
     def get_all_tools(
         self,
-        skill_service: Optional[Any] = None,
-        mcp_service: Optional[Any] = None,
-    ) -> List[Dict[str, Any]]:
+        skill_service: Any | None = None,
+        mcp_service: Any | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Merge base tools with dynamic skills and MCP tools.
 
@@ -183,7 +183,7 @@ class ToolRegistry:
 
         return self._deduplicate_tools(all_tools)
 
-    def _deduplicate_tools(self, tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _deduplicate_tools(self, tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Remove duplicate tools by name, keeping first occurrence.
 
@@ -194,7 +194,7 @@ class ToolRegistry:
             List of unique tool definitions.
         """
         seen: set[str] = set()
-        unique_tools: List[Dict[str, Any]] = []
+        unique_tools: list[dict[str, Any]] = []
 
         for tool in tools:
             name = tool["function"]["name"]
@@ -206,9 +206,9 @@ class ToolRegistry:
 
     def get_tool_list_string(
         self,
-        tools: Optional[List[Dict[str, Any]]] = None,
-        skill_service: Optional[Any] = None,
-        mcp_service: Optional[Any] = None,
+        tools: list[dict[str, Any]] | None = None,
+        skill_service: Any | None = None,
+        mcp_service: Any | None = None,
     ) -> str:
         """
         Generate a compact string listing all available tools.

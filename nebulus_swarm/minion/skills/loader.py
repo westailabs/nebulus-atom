@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import yaml
 
@@ -28,7 +27,7 @@ class SkillLoader:
         """
         self.workspace = workspace
         self.skills_dir = workspace / SKILLS_DIR
-        self._skills: Dict[str, Skill] = {}
+        self._skills: dict[str, Skill] = {}
         self._loaded = False
 
     def load_skills(self) -> None:
@@ -103,7 +102,7 @@ class SkillLoader:
         except Exception as e:
             logger.error(f"Error loading skill {path}: {e}")
 
-    def get_skill(self, name: str) -> Optional[Skill]:
+    def get_skill(self, name: str) -> Skill | None:
         """Get a skill by name.
 
         Args:
@@ -116,7 +115,7 @@ class SkillLoader:
             self.load_skills()
         return self._skills.get(name)
 
-    def get_skill_instructions(self, name: str) -> Optional[str]:
+    def get_skill_instructions(self, name: str) -> str | None:
         """Get a skill's instructions.
 
         Args:
@@ -128,7 +127,7 @@ class SkillLoader:
         skill = self.get_skill(name)
         return skill.instructions if skill else None
 
-    def list_skills(self) -> List[Dict[str, str]]:
+    def list_skills(self) -> list[dict[str, str]]:
         """List all available skills.
 
         Returns:
@@ -146,9 +145,9 @@ class SkillLoader:
         self,
         title: str,
         body: str,
-        labels: List[str],
-        files: Optional[List[str]] = None,
-    ) -> List[Skill]:
+        labels: list[str],
+        files: list[str] | None = None,
+    ) -> list[Skill]:
         """Find skills that match an issue.
 
         Args:
@@ -170,7 +169,7 @@ class SkillLoader:
 
         return matches
 
-    def get_combined_instructions(self, skill_names: List[str]) -> str:
+    def get_combined_instructions(self, skill_names: list[str]) -> str:
         """Get combined instructions for multiple skills.
 
         Args:
@@ -195,7 +194,7 @@ class SkillLoader:
         return len(self._skills)
 
     @property
-    def skill_names(self) -> List[str]:
+    def skill_names(self) -> list[str]:
         """Get list of skill names."""
         if not self._loaded:
             self.load_skills()

@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +68,7 @@ def resolve_model(alias: str, provider: str) -> str:
 def call_anthropic(
     prompt: str,
     model: str,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     max_tokens: int = 4096,
     timeout: int = 600,
 ) -> LLMResponse:
@@ -124,7 +123,7 @@ def call_anthropic(
 def call_google(
     prompt: str,
     model: str,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     timeout: int = 600,
 ) -> LLMResponse:
     """Call the Google Generative AI API.

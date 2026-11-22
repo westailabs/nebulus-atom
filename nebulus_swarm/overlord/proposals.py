@@ -5,11 +5,11 @@ import logging
 import os
 import sqlite3
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Generator, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +43,10 @@ class EnhancementProposal:
     estimated_impact: str = "Medium"
     risk: str = "Low"
     status: ProposalStatus = ProposalStatus.PENDING
-    related_issues: List[int] = field(default_factory=list)
+    related_issues: list[int] = field(default_factory=list)
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = field(default_factory=datetime.now)
-    resolved_at: Optional[datetime] = None
+    resolved_at: datetime | None = None
 
     @property
     def is_actionable(self) -> bool:
@@ -119,7 +119,7 @@ class ProposalStore:
                 ),
             )
 
-    def get(self, proposal_id: str) -> Optional[EnhancementProposal]:
+    def get(self, proposal_id: str) -> EnhancementProposal | None:
         """Get a proposal by ID."""
         with self._conn() as conn:
             row = conn.execute(
@@ -129,7 +129,7 @@ class ProposalStore:
                 return self._row_to_proposal(row)
             return None
 
-    def list_by_status(self, status: ProposalStatus) -> List[EnhancementProposal]:
+    def list_by_status(self, status: ProposalStatus) -> list[EnhancementProposal]:
         """List proposals with a given status."""
         with self._conn() as conn:
             rows = conn.execute(

@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+
 from nebulus_atom.services.context_service import ContextService, ContextServiceManager
 
 

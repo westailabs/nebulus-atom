@@ -2,12 +2,12 @@
 
 import logging
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import docker
 from docker.errors import DockerException, ImageNotFound, NotFound
 
-from nebulus_swarm.config import LLMConfig, ModelProfile, MinionConfig
+from nebulus_swarm.config import LLMConfig, MinionConfig, ModelProfile
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,8 @@ class DockerManager:
         self.overlord_callback_url = overlord_callback_url
         self.stub_mode = stub_mode
 
-        self._client: Optional[docker.DockerClient] = None
-        self._active_containers: Dict[str, str] = {}  # minion_id -> container_id
+        self._client: docker.DockerClient | None = None
+        self._active_containers: dict[str, str] = {}  # minion_id -> container_id
 
     def _get_client(self) -> docker.DockerClient:
         """Get or create Docker client."""
@@ -62,8 +62,8 @@ class DockerManager:
         minion_id: str,
         repo: str,
         issue_number: int,
-        model_override: Optional[ModelProfile] = None,
-    ) -> Dict[str, str]:
+        model_override: ModelProfile | None = None,
+    ) -> dict[str, str]:
         """Build environment variables for a Minion container.
 
         Args:
@@ -104,8 +104,8 @@ class DockerManager:
         self,
         repo: str,
         issue_number: int,
-        minion_id: Optional[str] = None,
-        model_override: Optional[ModelProfile] = None,
+        minion_id: str | None = None,
+        model_override: ModelProfile | None = None,
     ) -> str:
         """Spawn a new Minion container.
 
@@ -235,7 +235,7 @@ class DockerManager:
             logger.error(f"Failed to kill minion {minion_id}: {e}")
             return False
 
-    def list_minions(self) -> List[Dict[str, Any]]:
+    def list_minions(self) -> list[dict[str, Any]]:
         """List all active Minion containers.
 
         Returns:
@@ -276,7 +276,7 @@ class DockerManager:
             logger.error(f"Failed to list minions: {e}")
             return []
 
-    def get_minion_status(self, minion_id: str) -> Optional[str]:
+    def get_minion_status(self, minion_id: str) -> str | None:
         """Get the status of a Minion container.
 
         Args:
@@ -302,7 +302,7 @@ class DockerManager:
         except DockerException:
             return None
 
-    def get_minion_logs(self, minion_id: str, tail: int = 100) -> Optional[str]:
+    def get_minion_logs(self, minion_id: str, tail: int = 100) -> str | None:
         """Get logs from a Minion container.
 
         Args:

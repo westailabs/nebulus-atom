@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from nebulus_swarm.overlord.scanner import ProjectStatus, scan_ecosystem, scan_project
 
@@ -152,7 +152,7 @@ class DetectionEngine:
             FailingTestDetector(),
         ]
 
-    def run_all(self, project: Optional[str] = None) -> list[DetectionResult]:
+    def run_all(self, project: str | None = None) -> list[DetectionResult]:
         """Run all detectors across the ecosystem or a single project.
 
         Args:

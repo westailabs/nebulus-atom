@@ -3,7 +3,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class MinionStatus(Enum):
@@ -21,14 +20,14 @@ class Minion:
     """Represents a Minion worker instance."""
 
     id: str
-    container_id: Optional[str] = None
+    container_id: str | None = None
     repo: str = ""
     issue_number: int = 0
     status: MinionStatus = MinionStatus.STARTING
     started_at: datetime = field(default_factory=datetime.now)
-    last_heartbeat: Optional[datetime] = None
-    pr_number: Optional[int] = None
-    error_message: Optional[str] = None
+    last_heartbeat: datetime | None = None
+    pr_number: int | None = None
+    error_message: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for storage."""

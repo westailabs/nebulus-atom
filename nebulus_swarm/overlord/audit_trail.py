@@ -10,12 +10,13 @@ import logging
 import os
 import sqlite3
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,13 +40,13 @@ class SemanticLog:
     event: LogEvent
     task_id: str
     timestamp: datetime
-    data: Dict[str, Any]  # Event-specific data
+    data: dict[str, Any]  # Event-specific data
     reasoning: str = ""  # Supervisor's reasoning for the action
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     previous_hash: str = ""  # Hash of previous log entry (chain)
     signature: str = ""  # Ed25519 signature of this entry
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -59,7 +60,7 @@ class SemanticLog:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "SemanticLog":
+    def from_dict(cls, d: dict[str, Any]) -> "SemanticLog":
         """Create from dictionary."""
         return cls(
             id=d["id"],
@@ -97,7 +98,7 @@ class AuditTrail:
     - Optional Ed25519 signature
     """
 
-    def __init__(self, db_path: str, signing_key: Optional[bytes] = None):
+    def __init__(self, db_path: str, signing_key: bytes | None = None):
         """Initialize audit trail.
 
         Args:
@@ -179,7 +180,7 @@ class AuditTrail:
         self,
         event: LogEvent,
         task_id: str,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         reasoning: str = "",
     ) -> SemanticLog:
         """Add a log entry to the audit trail.
@@ -228,7 +229,7 @@ class AuditTrail:
         logger.debug(f"Audit log: {event.value} for task {task_id}")
         return entry
 
-    def get_logs_for_task(self, task_id: str) -> List[SemanticLog]:
+    def get_logs_for_task(self, task_id: str) -> list[SemanticLog]:
         """Get all log entries for a specific task."""
         with self._conn() as conn:
             rows = conn.execute(
@@ -237,7 +238,7 @@ class AuditTrail:
             ).fetchall()
             return [self._row_to_log(r) for r in rows]
 
-    def get_all_logs(self, limit: int = 1000) -> List[SemanticLog]:
+    def get_all_logs(self, limit: int = 1000) -> list[SemanticLog]:
         """Get all log entries, most recent first."""
         with self._conn() as conn:
             rows = conn.execute(
@@ -258,7 +259,7 @@ class AuditTrail:
             signature=row["signature"] or "",
         )
 
-    def verify_integrity(self) -> tuple[bool, List[str]]:
+    def verify_integrity(self) -> tuple[bool, list[str]]:
         """Verify the hash chain integrity.
 
         Returns:
@@ -295,7 +296,7 @@ class AuditTrail:
 
         return len(issues) == 0, issues
 
-    def export(self, task_id: Optional[str] = None) -> Dict[str, Any]:
+    def export(self, task_id: str | None = None) -> dict[str, Any]:
         """Export audit trail as JSON-serializable dict.
 
         Args:
@@ -332,7 +333,7 @@ def generate_signing_key() -> bytes:
         return b""
 
 
-def load_or_create_signing_key(key_path: Path) -> Optional[bytes]:
+def load_or_create_signing_key(key_path: Path) -> bytes | None:
     """Load signing key from file or create new one."""
     if key_path.exists():
         return key_path.read_bytes()

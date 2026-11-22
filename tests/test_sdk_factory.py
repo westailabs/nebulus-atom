@@ -16,7 +16,6 @@ from nebulus_swarm.overlord.workers.sdk_factory import (
     resolve_model,
 )
 
-
 # --- resolve_model ---
 
 
@@ -256,12 +255,11 @@ class TestCallGoogle:
                 "google": mock_google,
                 "google.generativeai": mock_genai,
             },
-        ):
-            with patch.dict("os.environ", {}, clear=True):
-                from nebulus_swarm.overlord.workers.sdk_factory import call_google
+        ), patch.dict("os.environ", {}, clear=True):
+            from nebulus_swarm.overlord.workers.sdk_factory import call_google
 
-                with pytest.raises(ValueError, match="No Google API key"):
-                    call_google("test", "gemini-2.5-pro")
+            with pytest.raises(ValueError, match="No Google API key"):
+                call_google("test", "gemini-2.5-pro")
 
     def test_api_error(self) -> None:
         mock_genai, mock_google = self._make_mock_genai()

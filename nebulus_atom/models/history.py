@@ -1,18 +1,18 @@
-from typing import List, Dict, Optional, Any
+from typing import Any
 
 
 class History:
     def __init__(self, system_prompt: str):
-        self.messages: List[Dict[str, Any]] = [
+        self.messages: list[dict[str, Any]] = [
             {"role": "system", "content": system_prompt}
         ]
 
     def add(
         self,
         role: str,
-        content: Optional[str] = None,
-        tool_calls: Optional[List[Dict]] = None,
-        tool_call_id: Optional[str] = None,
+        content: str | None = None,
+        tool_calls: list[dict] | None = None,
+        tool_call_id: str | None = None,
     ):
         message = {"role": role}
 
@@ -28,7 +28,7 @@ class History:
 
         self.messages.append(message)
 
-    def get(self) -> List[Dict[str, Any]]:
+    def get(self) -> list[dict[str, Any]]:
         return self.messages
 
 
@@ -37,7 +37,7 @@ class HistoryManager:
 
     def __init__(self, system_prompt: str):
         self.system_prompt = system_prompt
-        self.sessions: Dict[str, History] = {}
+        self.sessions: dict[str, History] = {}
 
     def get_session(self, session_id: str) -> History:
         if session_id not in self.sessions:
