@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 
 class FileService:
@@ -8,7 +7,7 @@ class FileService:
         """Reads a file and returns its content."""
         if not os.path.exists(path):
             raise FileNotFoundError(f"File not found: {path}")
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
 
     @staticmethod
@@ -25,7 +24,7 @@ class FileService:
         return f"Successfully wrote to {path}"
 
     @staticmethod
-    def list_dir(path: str = ".") -> List[str]:
+    def list_dir(path: str = ".") -> list[str]:
         """Lists files in a directory."""
         if not os.path.exists(path):
             raise FileNotFoundError(f"Directory not found: {path}")

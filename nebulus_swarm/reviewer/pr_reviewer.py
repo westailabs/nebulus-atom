@@ -4,7 +4,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
 
 from github import Auth, Github
 from github.GithubException import GithubException
@@ -28,7 +27,7 @@ class FileChange:
     status: str  # added, modified, removed, renamed
     additions: int
     deletions: int
-    patch: Optional[str] = None  # The diff patch
+    patch: str | None = None  # The diff patch
 
     @property
     def total_changes(self) -> int:
@@ -47,11 +46,11 @@ class PRDetails:
     base_branch: str
     head_branch: str
     created_at: datetime
-    files: List[FileChange] = field(default_factory=list)
+    files: list[FileChange] = field(default_factory=list)
     commits: int = 0
     additions: int = 0
     deletions: int = 0
-    linked_issue: Optional[int] = None
+    linked_issue: int | None = None
 
     @property
     def total_changes(self) -> int:
@@ -125,11 +124,11 @@ class ReviewResult:
 
     decision: ReviewDecision
     summary: str
-    inline_comments: List[InlineComment] = field(default_factory=list)
+    inline_comments: list[InlineComment] = field(default_factory=list)
     checks_passed: bool = True
     confidence: float = 0.0  # 0.0 to 1.0
-    issues: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+    issues: list[str] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
 
     @property
     def can_auto_merge(self) -> bool:
@@ -205,7 +204,7 @@ class PRReviewer:
             linked_issue=linked_issue,
         )
 
-    def _extract_linked_issue(self, body: str) -> Optional[int]:
+    def _extract_linked_issue(self, body: str) -> int | None:
         """Extract linked issue number from PR body.
 
         Looks for patterns like:
@@ -227,7 +226,7 @@ class PRReviewer:
 
         return None
 
-    def get_pr_checks_status(self, repo_name: str, pr_number: int) -> Dict[str, str]:
+    def get_pr_checks_status(self, repo_name: str, pr_number: int) -> dict[str, str]:
         """Get status of CI checks on a PR.
 
         Args:

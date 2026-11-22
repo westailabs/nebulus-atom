@@ -2,9 +2,10 @@
 
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from nebulus_swarm.minion.agent.llm_client import LLMClient, LLMConfig, LLMResponse
 from nebulus_swarm.minion.agent.response_parser import ResponseParser
@@ -28,10 +29,10 @@ class AgentResult:
 
     status: AgentStatus
     summary: str
-    files_changed: List[str] = field(default_factory=list)
-    error: Optional[str] = None
-    blocker_type: Optional[str] = None
-    question: Optional[str] = None
+    files_changed: list[str] = field(default_factory=list)
+    error: str | None = None
+    blocker_type: str | None = None
+    question: str | None = None
     turns_used: int = 0
 
 
@@ -43,11 +44,11 @@ class ToolResult:
     name: str
     success: bool
     output: str
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # Type alias for tool executor function
-ToolExecutorFn = Callable[[str, Dict[str, Any]], ToolResult]
+ToolExecutorFn = Callable[[str, dict[str, Any]], ToolResult]
 
 
 class MinionAgent:
@@ -61,7 +62,7 @@ class MinionAgent:
         self,
         llm_config: LLMConfig,
         system_prompt: str,
-        tools: List[Dict[str, Any]],
+        tools: list[dict[str, Any]],
         tool_executor: ToolExecutorFn,
         turn_limit: int = DEFAULT_TURN_LIMIT,
         error_threshold: int = DEFAULT_ERROR_THRESHOLD,
@@ -87,13 +88,13 @@ class MinionAgent:
         self._parser = ResponseParser()
 
         # Conversation history
-        self._messages: List[Dict[str, Any]] = []
+        self._messages: list[dict[str, Any]] = []
         self._turn_count = 0
         self._consecutive_errors = 0
 
         # Completion tracking
         self._completed = False
-        self._result: Optional[AgentResult] = None
+        self._result: AgentResult | None = None
 
     def inject_message(self, text: str) -> None:
         """Inject a user message into conversation history for resuming.
@@ -164,7 +165,7 @@ class MinionAgent:
             turns_used=self._turn_count,
         )
 
-    def _process_response(self, response: LLMResponse) -> Optional[AgentResult]:
+    def _process_response(self, response: LLMResponse) -> AgentResult | None:
         """Process LLM response and execute tools.
 
         Args:
@@ -190,7 +191,7 @@ class MinionAgent:
                 logger.info(f"Extracted {len(tool_calls)} tool calls from content")
 
         # Build assistant message with whatever tool calls we found
-        assistant_message: Dict[str, Any] = {"role": "assistant"}
+        assistant_message: dict[str, Any] = {"role": "assistant"}
         if response.content:
             assistant_message["content"] = response.content
 
@@ -256,7 +257,7 @@ class MinionAgent:
 
         return None
 
-    def _execute_tool_call(self, tool_call: Dict[str, Any]) -> ToolResult:
+    def _execute_tool_call(self, tool_call: dict[str, Any]) -> ToolResult:
         """Execute a single tool call.
 
         Args:
@@ -286,7 +287,7 @@ class MinionAgent:
         return self.tool_executor(name, arguments)
 
     def _handle_task_complete(
-        self, tool_call: Dict[str, Any], result: ToolResult
+        self, tool_call: dict[str, Any], result: ToolResult
     ) -> AgentResult:
         """Handle task_complete tool call.
 
@@ -317,7 +318,7 @@ class MinionAgent:
         )
 
     def _handle_task_blocked(
-        self, tool_call: Dict[str, Any], result: ToolResult
+        self, tool_call: dict[str, Any], result: ToolResult
     ) -> AgentResult:
         """Handle task_blocked tool call.
 

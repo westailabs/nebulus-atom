@@ -2,7 +2,8 @@ import pytest
 
 pytest.importorskip("openai")
 
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
+
 from nebulus_atom.controllers.agent_controller import AgentController
 from nebulus_atom.views.cli_view import CLIView
 

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from nebulus_swarm.overlord.graph import DependencyGraph
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
-
-import pytest
 
 
 def _make_config(tmp_path: Path) -> OverlordConfig:

@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiohttp
 
@@ -30,9 +30,9 @@ class ReportPayload:
     event: EventType
     issue: int
     message: str
-    data: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "minion_id": self.minion_id,
@@ -67,8 +67,8 @@ class Reporter:
         self.callback_url = callback_url
         self.heartbeat_interval = heartbeat_interval
 
-        self._session: Optional[aiohttp.ClientSession] = None
-        self._heartbeat_task: Optional[asyncio.Task] = None
+        self._session: aiohttp.ClientSession | None = None
+        self._heartbeat_task: asyncio.Task | None = None
         self._current_status: str = "initializing"
         self._running = False
 
@@ -167,9 +167,7 @@ class Reporter:
         )
         return await self._send_report(payload)
 
-    async def progress(
-        self, message: str, data: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def progress(self, message: str, data: dict[str, Any] | None = None) -> bool:
         """Report progress on the task.
 
         Args:
@@ -192,10 +190,10 @@ class Reporter:
     async def complete(
         self,
         message: str = "completed",
-        pr_number: Optional[int] = None,
-        pr_url: Optional[str] = None,
-        branch: Optional[str] = None,
-        review_summary: Optional[str] = None,
+        pr_number: int | None = None,
+        pr_url: str | None = None,
+        branch: str | None = None,
+        review_summary: str | None = None,
     ) -> bool:
         """Report successful completion.
 
@@ -231,8 +229,8 @@ class Reporter:
     async def error(
         self,
         message: str,
-        error_type: Optional[str] = None,
-        details: Optional[str] = None,
+        error_type: str | None = None,
+        details: str | None = None,
     ) -> bool:
         """Report an error.
 
@@ -293,7 +291,7 @@ class Reporter:
         question_id: str,
         timeout: int = 600,
         interval: int = 15,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Poll the Overlord for an answer to a pending question.
 
         Args:

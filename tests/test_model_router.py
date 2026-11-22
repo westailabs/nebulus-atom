@@ -4,7 +4,6 @@ import json
 import sys
 from unittest.mock import MagicMock, patch
 
-
 # Mock slack_bolt before importing Overlord modules
 sys.modules.setdefault("slack_bolt", MagicMock())
 sys.modules.setdefault("slack_bolt.adapter", MagicMock())
@@ -355,7 +354,7 @@ class TestDockerManagerModelOverride:
         assert env["NEBULUS_BASE_URL"] == "http://default:5000/v1"
 
     def test_build_env_with_model_override(self):
-        from nebulus_swarm.config import LLMConfig, ModelProfile, MinionConfig
+        from nebulus_swarm.config import LLMConfig, MinionConfig, ModelProfile
         from nebulus_swarm.overlord.docker_manager import DockerManager
 
         manager = DockerManager(
@@ -380,7 +379,7 @@ class TestDockerManagerModelOverride:
 
     def test_build_env_override_inherits_base_url(self):
         """Model override with empty base_url inherits from default."""
-        from nebulus_swarm.config import LLMConfig, ModelProfile, MinionConfig
+        from nebulus_swarm.config import LLMConfig, MinionConfig, ModelProfile
         from nebulus_swarm.overlord.docker_manager import DockerManager
 
         manager = DockerManager(
@@ -398,7 +397,7 @@ class TestDockerManagerModelOverride:
         assert env["NEBULUS_BASE_URL"] == "http://default:5000/v1"
 
     def test_spawn_minion_with_model_override(self):
-        from nebulus_swarm.config import LLMConfig, ModelProfile, MinionConfig
+        from nebulus_swarm.config import LLMConfig, MinionConfig, ModelProfile
         from nebulus_swarm.overlord.docker_manager import DockerManager
 
         manager = DockerManager(

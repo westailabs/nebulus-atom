@@ -5,7 +5,6 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +35,9 @@ class GitOps:
 
     def _run_git(
         self,
-        args: List[str],
-        cwd: Optional[Path] = None,
-        env: Optional[dict] = None,
+        args: list[str],
+        cwd: Path | None = None,
+        env: dict | None = None,
     ) -> GitResult:
         """Run a git command.
 
@@ -155,7 +154,7 @@ class GitOps:
         """
         return self._run_git(["add", "-A"])
 
-    def stage_files(self, files: List[str]) -> GitResult:
+    def stage_files(self, files: list[str]) -> GitResult:
         """Stage specific files.
 
         Args:
@@ -166,7 +165,7 @@ class GitOps:
         """
         return self._run_git(["add"] + files)
 
-    def commit(self, message: str, author: Optional[str] = None) -> GitResult:
+    def commit(self, message: str, author: str | None = None) -> GitResult:
         """Create a commit.
 
         Args:
@@ -183,7 +182,7 @@ class GitOps:
         logger.info(f"Committing: {message[:50]}...")
         return self._run_git(args)
 
-    def push(self, remote: str = "origin", branch: Optional[str] = None) -> GitResult:
+    def push(self, remote: str = "origin", branch: str | None = None) -> GitResult:
         """Push to remote.
 
         Args:
@@ -243,10 +242,10 @@ class GitOps:
     def push_with_retry(
         self,
         remote: str = "origin",
-        branch: Optional[str] = None,
+        branch: str | None = None,
         base_branch: str = "main",
         max_retries: int = 2,
-    ) -> Tuple[GitResult, bool]:
+    ) -> tuple[GitResult, bool]:
         """Push with automatic rebase retry on rejection.
 
         Args:
@@ -290,7 +289,7 @@ class GitOps:
 
         return result, rebased
 
-    def get_diff_stats(self) -> Optional[str]:
+    def get_diff_stats(self) -> str | None:
         """Get summary of changes.
 
         Returns:
@@ -299,7 +298,7 @@ class GitOps:
         result = self._run_git(["diff", "--stat", "HEAD~1"])
         return result.output if result.success else None
 
-    def get_changed_files(self) -> List[str]:
+    def get_changed_files(self) -> list[str]:
         """Get list of changed files.
 
         Returns:

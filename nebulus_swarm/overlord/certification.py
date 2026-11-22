@@ -8,7 +8,7 @@ import json
 import logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class ImpactAnalysis:
     lines_added: int = 0
     lines_removed: int = 0
     estimated_risk: str = "low"  # low, medium, high
-    affected_components: List[str] = field(default_factory=list)
+    affected_components: list[str] = field(default_factory=list)
     notes: str = ""
 
     @property
@@ -66,20 +66,20 @@ class CertificationPackage:
 
     # Supporting evidence
     diff_summary: str = ""
-    test_results: Optional[TestResult] = None
-    auditor_score: Optional[float] = None  # 0.0-1.0 confidence
-    auditor_issues: List[str] = field(default_factory=list)
+    test_results: TestResult | None = None
+    auditor_score: float | None = None  # 0.0-1.0 confidence
+    auditor_issues: list[str] = field(default_factory=list)
     evaluator_score: str = ""  # pass/fail/needs_revision
     evaluator_feedback: str = ""
-    impact_analysis: Optional[ImpactAnalysis] = None
+    impact_analysis: ImpactAnalysis | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.now)
     status: str = "pending"  # pending, approved, rejected
-    reviewed_by: Optional[str] = None
-    reviewed_at: Optional[datetime] = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary."""
         d = {
             "proposal_id": self.proposal_id,
@@ -104,7 +104,7 @@ class CertificationPackage:
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "CertificationPackage":
+    def from_dict(cls, d: dict[str, Any]) -> "CertificationPackage":
         """Create from dictionary."""
         test_results = None
         if d.get("test_results"):
@@ -213,18 +213,18 @@ class CertificationBuilder:
 
     def __init__(self):
         """Initialize the builder."""
-        self._proposal_id: Optional[str] = None
+        self._proposal_id: str | None = None
         self._proposal_title: str = ""
         self._proposal_type: str = ""
         self._proposal_rationale: str = ""
         self._proposal_action: str = ""
         self._diff_summary: str = ""
-        self._test_results: Optional[TestResult] = None
-        self._auditor_score: Optional[float] = None
-        self._auditor_issues: List[str] = []
+        self._test_results: TestResult | None = None
+        self._auditor_score: float | None = None
+        self._auditor_issues: list[str] = []
         self._evaluator_score: str = ""
         self._evaluator_feedback: str = ""
-        self._impact_analysis: Optional[ImpactAnalysis] = None
+        self._impact_analysis: ImpactAnalysis | None = None
 
     def from_proposal(self, proposal: "EnhancementProposal") -> "CertificationBuilder":
         """Set proposal details from an EnhancementProposal.
@@ -312,7 +312,7 @@ class CertificationBuilder:
         lines_added: int = 0,
         lines_removed: int = 0,
         risk: str = "low",
-        components: Optional[List[str]] = None,
+        components: list[str] | None = None,
         notes: str = "",
     ) -> "CertificationBuilder":
         """Add impact analysis.

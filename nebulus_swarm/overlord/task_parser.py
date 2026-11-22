@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from nebulus_swarm.overlord.action_scope import ActionScope, scope_for_merge
 from nebulus_swarm.overlord.dispatch import DispatchPlan, DispatchStep
@@ -23,7 +23,7 @@ class InvestigationTask:
     """
 
     query: str
-    project: Optional[str] = None
+    project: str | None = None
     task_type: str = "research"
     timeout: int = 600
     tags: list[str] = field(default_factory=list)
@@ -82,7 +82,7 @@ class TaskParser:
         query_clean = query.strip()
 
         # Infer project from query text
-        project: Optional[str] = None
+        project: str | None = None
         query_lower = query_clean.lower()
         for name in self.graph.config.projects:
             if name.lower() in query_lower:

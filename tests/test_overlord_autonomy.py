@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from nebulus_swarm.overlord.action_scope import ActionScope
 from nebulus_swarm.overlord.autonomy import AutonomyEngine, get_autonomy_summary
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig

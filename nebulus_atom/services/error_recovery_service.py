@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 
 class ErrorRecoveryService:
@@ -33,7 +32,7 @@ class ErrorRecoveryService:
         ]
 
     def analyze_error(
-        self, tool_name: str, error_msg: str, args: Optional[dict] = None
+        self, tool_name: str, error_msg: str, args: dict | None = None
     ) -> str:
         """
         Analyzes a tool failure and returns a constructive prompt for the agent.

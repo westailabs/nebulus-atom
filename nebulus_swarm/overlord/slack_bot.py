@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import re
-from typing import Awaitable, Callable, Optional, Union
+from collections.abc import Awaitable, Callable
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.async_app import AsyncApp
@@ -11,13 +11,10 @@ from slack_bolt.async_app import AsyncApp
 logger = logging.getLogger(__name__)
 
 # Type alias for message handlers (sync or async)
-MessageHandler = Callable[[str, str, str], Union[str, Awaitable[str]]]
+MessageHandler = Callable[[str, str, str], str | Awaitable[str]]
 
 # Type alias for thread reply handlers (async-aware)
-ThreadReplyHandler = Union[
-    Callable[[str, str], None],
-    Callable[[str, str], Awaitable[None]],
-]
+ThreadReplyHandler = Callable[[str, str], None] | Callable[[str, str], Awaitable[None]]
 
 
 class SlackBot:
@@ -28,8 +25,8 @@ class SlackBot:
         bot_token: str,
         app_token: str,
         channel_id: str,
-        message_handler: Optional[MessageHandler] = None,
-        thread_reply_handler: Optional[ThreadReplyHandler] = None,
+        message_handler: MessageHandler | None = None,
+        thread_reply_handler: ThreadReplyHandler | None = None,
     ):
         """Initialize Slack bot.
 
@@ -52,7 +49,7 @@ class SlackBot:
         self.app = AsyncApp(token=bot_token)
         self._setup_handlers()
 
-        self._handler: Optional[AsyncSocketModeHandler] = None
+        self._handler: AsyncSocketModeHandler | None = None
 
     def _setup_handlers(self) -> None:
         """Set up Slack event handlers."""
@@ -156,7 +153,7 @@ class SlackBot:
             logger.info("Stopping Slack bot...")
             await self._handler.close_async()
 
-    async def post_message(self, text: str, thread_ts: Optional[str] = None) -> None:
+    async def post_message(self, text: str, thread_ts: str | None = None) -> None:
         """Post a message to the configured channel.
 
         Args:
@@ -178,7 +175,7 @@ class SlackBot:
         issue_number: int,
         question_text: str,
         timeout_minutes: int = 10,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Post a Minion question to the channel.
 
         Posts a formatted question message that humans can reply to in a thread.
@@ -216,7 +213,7 @@ class SlackBot:
         minion_id: str,
         issue_number: int,
         status: str,
-        details: Optional[str] = None,
+        details: str | None = None,
     ) -> None:
         """Post a minion status update.
 

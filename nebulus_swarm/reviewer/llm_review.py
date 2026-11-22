@@ -3,7 +3,6 @@
 import json
 import logging
 import re
-from typing import Optional
 
 from openai import OpenAI
 
@@ -245,7 +244,7 @@ Provide a brief analysis (2-3 paragraphs max)."""
 def create_review_summary(
     pr_details: PRDetails,
     llm_result: ReviewResult,
-    checks_summary: Optional[str] = None,
+    checks_summary: str | None = None,
 ) -> str:
     """Create a complete review summary combining LLM review and checks.
 

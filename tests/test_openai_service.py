@@ -1,8 +1,9 @@
 """Tests for OpenAIService - the core LLM client."""
 
-import pytest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 
 class TestOpenAIServiceInit:

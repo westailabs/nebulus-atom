@@ -1,9 +1,9 @@
 """Tool definitions for Minion agent."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 # Tool definitions in OpenAI function calling format
-MINION_TOOLS: List[Dict[str, Any]] = [
+MINION_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
@@ -243,12 +243,12 @@ MINION_TOOLS: List[Dict[str, Any]] = [
 ]
 
 
-def get_tool_names() -> List[str]:
+def get_tool_names() -> list[str]:
     """Get list of all tool names."""
     return [tool["function"]["name"] for tool in MINION_TOOLS]
 
 
-def get_tool_by_name(name: str) -> Dict[str, Any] | None:
+def get_tool_by_name(name: str) -> dict[str, Any] | None:
     """Get a tool definition by name."""
     for tool in MINION_TOOLS:
         if tool["function"]["name"] == name:

@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-
 from nebulus_swarm.overlord.focus import (
     FocusContext,
-    build_focus_context,
     _extract_section,
     _gather_recent_plans,
     _parse_business_md,
+    build_focus_context,
 )
-
 
 # --- FocusContext dataclass ---
 

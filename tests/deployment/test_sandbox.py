@@ -1,6 +1,8 @@
-import pytest
 import os
-from nebulus_atom.utils.sandbox import sandbox, SandboxViolation
+
+import pytest
+
+from nebulus_atom.utils.sandbox import SandboxViolation, sandbox
 
 
 @sandbox

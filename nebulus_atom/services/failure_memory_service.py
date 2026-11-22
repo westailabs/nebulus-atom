@@ -11,7 +11,6 @@ import re
 import sqlite3
 import time
 import uuid
-from typing import List, Optional
 
 from nebulus_atom.models.failure_memory import (
     FailureContext,
@@ -73,7 +72,7 @@ class FailureMemoryService:
         session_id: str,
         tool_name: str,
         error_message: str,
-        args: Optional[dict] = None,
+        args: dict | None = None,
     ) -> FailureRecord:
         """Record a tool failure.
 
@@ -155,7 +154,7 @@ class FailureMemoryService:
         return updated
 
     def query_similar_failures(
-        self, tool_name: str, error_type: Optional[str] = None
+        self, tool_name: str, error_type: str | None = None
     ) -> FailurePattern:
         """Query aggregated failure pattern for a tool and optional error type.
 
@@ -194,7 +193,7 @@ class FailureMemoryService:
         )
 
     def build_failure_context(
-        self, tool_names: Optional[List[str]] = None
+        self, tool_names: list[str] | None = None
     ) -> FailureContext:
         """Build a FailureContext for a set of tools.
 

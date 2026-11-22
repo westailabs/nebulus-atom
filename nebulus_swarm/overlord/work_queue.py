@@ -11,11 +11,11 @@ import json
 import logging
 import sqlite3
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Generator, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -50,15 +50,15 @@ class Task:
     status: str = "backlog"
     priority: str = "medium"
     complexity: str = "medium"
-    description: Optional[str] = None
-    external_id: Optional[str] = None
-    external_source: Optional[str] = None
-    locked_by: Optional[str] = None
-    locked_at: Optional[str] = None
+    description: str | None = None
+    external_id: str | None = None
+    external_source: str | None = None
+    locked_by: str | None = None
+    locked_at: str | None = None
     retry_count: int = 0
     max_retries: int = 2
-    mirror_path: Optional[str] = None
-    token_budget: Optional[int] = None
+    mirror_path: str | None = None
+    token_budget: int | None = None
     created_at: str = ""
     updated_at: str = ""
 
@@ -73,7 +73,7 @@ class TaskLogEntry:
     new_status: str = ""
     changed_by: str = ""
     timestamp: str = ""
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 @dataclass
@@ -96,7 +96,7 @@ class DispatchResultRecord:
 class WorkQueue:
     """SQLite-backed work queue with state machine enforcement."""
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
+    def __init__(self, db_path: Path | None = None) -> None:
         """Initialize the work queue.
 
         Args:
@@ -314,16 +314,16 @@ class WorkQueue:
         title: str,
         project: str,
         *,
-        description: Optional[str] = None,
+        description: str | None = None,
         priority: str = "medium",
         complexity: str = "medium",
-        external_id: Optional[str] = None,
-        external_source: Optional[str] = None,
-        mirror_path: Optional[str] = None,
-        token_budget: Optional[int] = None,
+        external_id: str | None = None,
+        external_source: str | None = None,
+        mirror_path: str | None = None,
+        token_budget: int | None = None,
     ) -> str:
         task_id = str(uuid.uuid4())
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         with self._get_connection() as conn:
             conn.execute(
@@ -353,7 +353,7 @@ class WorkQueue:
         logger.info("Created task %s: %s [%s]", task_id[:8], title, project)
         return task_id
 
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """Get a task by ID.
 
         Args:
@@ -372,7 +372,7 @@ class WorkQueue:
         self,
         task_id: str,
         *,
-        token_budget: Optional[int] = None,
+        token_budget: int | None = None,
     ) -> None:
         """Update mutable fields on a task.
 
@@ -394,7 +394,7 @@ class WorkQueue:
             return
 
         updates.append("updated_at = ?")
-        params.append(datetime.now(timezone.utc).isoformat())
+        params.append(datetime.now(UTC).isoformat())
         params.append(task_id)
 
         sql = f"UPDATE tasks SET {', '.join(updates)} WHERE id = ?"
@@ -406,8 +406,8 @@ class WorkQueue:
     def list_tasks(
         self,
         *,
-        status: Optional[str] = None,
-        project: Optional[str] = None,
+        status: str | None = None,
+        project: str | None = None,
         limit: int = 50,
     ) -> list[Task]:
         """List tasks with optional filters.
@@ -442,7 +442,7 @@ class WorkQueue:
         task_id: str,
         new_status: str,
         changed_by: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> Task:
         """Transition a task to a new status, enforcing the state machine.
 
@@ -470,7 +470,7 @@ class WorkQueue:
             if new_status not in TRANSITIONS.get(old_status, set()):
                 raise ValueError(f"Invalid transition: {old_status} -> {new_status}")
 
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(UTC).isoformat()
             retry_count = row["retry_count"]
 
             # Increment retry on failed -> backlog
@@ -524,7 +524,7 @@ class WorkQueue:
             if row["locked_by"]:
                 raise ValueError(f"Task {task_id} already locked by {row['locked_by']}")
 
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(UTC).isoformat()
             conn.execute(
                 "UPDATE tasks SET locked_by = ?, locked_at = ?, updated_at = ? WHERE id = ?",
                 (worker_id, now, now, task_id),
@@ -545,7 +545,7 @@ class WorkQueue:
             conn.execute(
                 "UPDATE tasks SET locked_by = NULL, locked_at = NULL, "
                 "updated_at = ? WHERE id = ?",
-                (datetime.now(timezone.utc).isoformat(), task_id),
+                (datetime.now(UTC).isoformat(), task_id),
             )
 
     def reclaim_stale_locks(self, timeout_minutes: int = 30) -> list[str]:
@@ -559,9 +559,7 @@ class WorkQueue:
         """
         from datetime import timedelta
 
-        cutoff = (
-            datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)
-        ).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(minutes=timeout_minutes)).isoformat()
 
         with self._get_connection() as conn:
             rows = conn.execute(
@@ -572,7 +570,7 @@ class WorkQueue:
             task_ids = [row["id"] for row in rows]
             if task_ids:
                 placeholders = ",".join("?" for _ in task_ids)
-                now = datetime.now(timezone.utc).isoformat()
+                now = datetime.now(UTC).isoformat()
                 conn.execute(
                     f"UPDATE tasks SET locked_by = NULL, locked_at = NULL, "
                     f"updated_at = ? WHERE id IN ({placeholders})",
@@ -581,7 +579,7 @@ class WorkQueue:
 
             return task_ids
 
-    def get_eligible_for_dispatch(self, project: Optional[str] = None) -> list[Task]:
+    def get_eligible_for_dispatch(self, project: str | None = None) -> list[Task]:
         """Get tasks that are active, unlocked, and have no pending dependencies.
 
         Args:
@@ -680,7 +678,7 @@ class WorkQueue:
         Returns:
             The auto-generated ID of the new record.
         """
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         with self._get_connection() as conn:
             cursor = conn.execute(
@@ -738,8 +736,8 @@ class WorkQueue:
             estimated_cost_usd: Estimated cost for this usage.
             ceiling_usd: Daily ceiling in USD.
         """
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        now = datetime.now(timezone.utc).isoformat()
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
+        now = datetime.now(UTC).isoformat()
 
         with self._get_connection() as conn:
             existing = conn.execute(
@@ -784,7 +782,7 @@ class WorkQueue:
                     ),
                 )
 
-    def get_daily_usage(self, date: Optional[str] = None) -> Optional[dict]:
+    def get_daily_usage(self, date: str | None = None) -> dict | None:
         """Get token usage for a given date.
 
         Args:
@@ -794,7 +792,7 @@ class WorkQueue:
             Dict with usage data, or None if no records for the date.
         """
         if date is None:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = datetime.now(UTC).strftime("%Y-%m-%d")
 
         with self._get_connection() as conn:
             row = conn.execute(
@@ -836,11 +834,11 @@ class WorkQueue:
         title: str,
         project: str,
         *,
-        description: Optional[str] = None,
+        description: str | None = None,
         priority: str = "medium",
-        token_budget: Optional[int] = None,
+        token_budget: int | None = None,
     ) -> tuple[str, bool]:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         with self._get_connection() as conn:
             existing = conn.execute(

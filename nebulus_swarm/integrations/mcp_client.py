@@ -7,7 +7,7 @@ and provides additional tools. When not configured, Atom works standalone.
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -22,14 +22,14 @@ class MCPTool:
 
     name: str
     description: str
-    input_schema: Dict[str, Any] = field(default_factory=dict)
+    input_schema: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class MCPConfig:
     """Configuration for MCP client."""
 
-    url: Optional[str] = None
+    url: str | None = None
     timeout: int = DEFAULT_TIMEOUT
 
     @classmethod
@@ -53,14 +53,14 @@ class MCPClient:
     it gracefully degrades and returns empty tool lists.
     """
 
-    def __init__(self, config: Optional[MCPConfig] = None):
+    def __init__(self, config: MCPConfig | None = None):
         """Initialize MCP client.
 
         Args:
             config: MCP configuration. If None, loads from environment.
         """
         self.config = config or MCPConfig.from_env()
-        self._tools: List[MCPTool] = []
+        self._tools: list[MCPTool] = []
         self._available = False
 
         if self.config.enabled:
@@ -103,11 +103,11 @@ class MCPClient:
         return self._available
 
     @property
-    def tools(self) -> List[MCPTool]:
+    def tools(self) -> list[MCPTool]:
         """Get list of available MCP tools."""
         return self._tools.copy()
 
-    def call_tool(self, name: str, arguments: Dict[str, Any]) -> Optional[Any]:
+    def call_tool(self, name: str, arguments: dict[str, Any]) -> Any | None:
         """Call an MCP tool.
 
         Args:
@@ -143,7 +143,7 @@ class MCPClient:
             logger.warning(f"MCP tool call failed: {e}")
             return None
 
-    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> list[dict[str, Any]]:
         """Get tool definitions in OpenAI function format.
 
         Returns:

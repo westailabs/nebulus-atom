@@ -1,8 +1,9 @@
-import os
 import datetime
-from nebulus_atom.utils.logger import setup_logger
-from nebulus_atom.services.task_service import TaskService
+import os
+
 from nebulus_atom.models.history import History
+from nebulus_atom.services.task_service import TaskService
+from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

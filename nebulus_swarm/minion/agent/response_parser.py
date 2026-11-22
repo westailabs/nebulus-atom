@@ -8,7 +8,8 @@ import json
 import logging
 import re
 import time
-from typing import Any, Dict, Generator, List
+from collections.abc import Generator
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ResponseParser:
     """Parses LLM responses to extract tool calls from text content."""
 
-    def extract_tool_calls(self, text: str) -> List[Dict[str, Any]]:
+    def extract_tool_calls(self, text: str) -> list[dict[str, Any]]:
         """Extract tool call objects from response text.
 
         Handles:
@@ -33,7 +34,7 @@ class ResponseParser:
         """
         # Remove special tokens
         text = re.sub(r"<\|.*?\|>", "", text).strip()
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         for candidate in self._find_json_objects(text):
             try:
@@ -94,7 +95,7 @@ class ResponseParser:
         Yields:
             Candidate JSON strings.
         """
-        stack: List[str] = []
+        stack: list[str] = []
         start = -1
 
         for i, char in enumerate(text):
@@ -118,8 +119,8 @@ class ResponseParser:
                         yield text[start : i + 1]
 
     def normalize_tool_call(
-        self, extracted: Dict[str, Any], index: int = 0
-    ) -> Dict[str, Any]:
+        self, extracted: dict[str, Any], index: int = 0
+    ) -> dict[str, Any]:
         """Normalize extracted dict into standard tool call format.
 
         Args:
@@ -150,8 +151,8 @@ class ResponseParser:
         }
 
     def normalize_all(
-        self, extracted_list: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, extracted_list: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Normalize a list of extracted tool calls.
 
         Args:

@@ -14,20 +14,21 @@ Also usable standalone: uvicorn nebulus_atom.orchestrator.api:app
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 
 from nebulus_atom.utils.logger import setup_logger
+
 from .engine import WorkflowEngine
-from .loader import load_workflow, load_workflow_from_string, list_templates
+from .loader import list_templates, load_workflow, load_workflow_from_string
 from .models import JobStatus
 
 logger = setup_logger(__name__)
 
 # Engine singleton — injected at startup
-_engine: Optional[WorkflowEngine] = None
+_engine: WorkflowEngine | None = None
 
 
 def get_engine() -> WorkflowEngine:
@@ -50,9 +51,9 @@ router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
 
 
 class JobSubmitRequest(BaseModel):
-    template: Optional[str] = None  # Built-in template name
-    workflow_yaml: Optional[str] = None  # Inline YAML definition
-    inputs: Dict[str, Any] = {}
+    template: str | None = None  # Built-in template name
+    workflow_yaml: str | None = None  # Inline YAML definition
+    inputs: dict[str, Any] = {}
 
     class Config:
         json_schema_extra = {
@@ -73,28 +74,28 @@ class JobSubmitRequest(BaseModel):
 
 class StepResultResponse(BaseModel):
     status: str
-    output: Optional[str]
-    error: Optional[str]
-    duration_seconds: Optional[float]
-    model_used: Optional[str]
+    output: str | None
+    error: str | None
+    duration_seconds: float | None
+    model_used: str | None
 
 
 class JobResponse(BaseModel):
     id: str
     workflow: str
     status: str
-    inputs: Dict[str, Any]
-    steps: Dict[str, StepResultResponse]
+    inputs: dict[str, Any]
+    steps: dict[str, StepResultResponse]
     created_at: str
-    started_at: Optional[str]
-    completed_at: Optional[str]
-    error: Optional[str]
+    started_at: str | None
+    completed_at: str | None
+    error: str | None
 
 
 class TemplateInfo(BaseModel):
     name: str
     description: str
-    steps: List[str]
+    steps: list[str]
 
 
 # -------------------------------------------------------------------------
@@ -124,7 +125,7 @@ async def submit_job(request: JobSubmitRequest, background_tasks: BackgroundTask
     return _job_to_response(job)
 
 
-@router.get("/jobs", response_model=List[JobResponse])
+@router.get("/jobs", response_model=list[JobResponse])
 def list_jobs(limit: int = 20):
     """List recent jobs."""
     engine = get_engine()
@@ -142,7 +143,7 @@ def get_job(job_id: str):
     return _job_to_response(job)
 
 
-@router.get("/templates", response_model=List[TemplateInfo])
+@router.get("/templates", response_model=list[TemplateInfo])
 def get_templates():
     """List available built-in workflow templates."""
     templates = []

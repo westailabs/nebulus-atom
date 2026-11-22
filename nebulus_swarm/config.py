@@ -1,9 +1,8 @@
 """Configuration for Nebulus Swarm."""
 
-import os
 import json
+import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -28,7 +27,7 @@ class GitHubConfig:
     default_repo: str = field(
         default_factory=lambda: os.getenv("GITHUB_DEFAULT_REPO", "")
     )
-    watched_repos: List[str] = field(default_factory=list)
+    watched_repos: list[str] = field(default_factory=list)
     work_label: str = "nebulus-ready"
     in_progress_label: str = "in-progress"
     needs_attention_label: str = "needs-attention"
@@ -60,8 +59,9 @@ class LLMConfig:
         default_factory=lambda: int(os.getenv("NEBULUS_TIMEOUT", "600"))
     )
     streaming: bool = field(
-        default_factory=lambda: os.getenv("NEBULUS_STREAMING", "false").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("NEBULUS_STREAMING", "false").lower() == "true"
+        )
     )
 
 
@@ -81,12 +81,14 @@ class ReviewerConfig:
         default_factory=lambda: os.getenv("REVIEWER_ENABLED", "true").lower() == "true"
     )
     auto_review: bool = field(
-        default_factory=lambda: os.getenv("REVIEWER_AUTO_REVIEW", "true").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("REVIEWER_AUTO_REVIEW", "true").lower() == "true"
+        )
     )
     auto_merge: bool = field(
-        default_factory=lambda: os.getenv("REVIEWER_AUTO_MERGE", "false").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("REVIEWER_AUTO_MERGE", "false").lower() == "true"
+        )
     )
     merge_method: str = field(
         default_factory=lambda: os.getenv("REVIEWER_MERGE_METHOD", "squash")
@@ -101,8 +103,9 @@ class OverlordLLMConfig:
     """LLM configuration for Overlord command parsing."""
 
     enabled: bool = field(
-        default_factory=lambda: os.getenv("OVERLORD_LLM_ENABLED", "true").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("OVERLORD_LLM_ENABLED", "true").lower() == "true"
+        )
     )
     base_url: str = field(
         default_factory=lambda: os.getenv(
@@ -159,7 +162,7 @@ class RoutingConfig:
     default_tier: str = field(
         default_factory=lambda: os.getenv("ROUTING_DEFAULT_TIER", "heavy")
     )
-    models: Dict[str, ModelProfile] = field(default_factory=dict)
+    models: dict[str, ModelProfile] = field(default_factory=dict)
 
     @classmethod
     def from_env(cls) -> "RoutingConfig":
@@ -179,7 +182,7 @@ class RoutingConfig:
                 pass
         return config
 
-    def get_model(self, tier: str) -> Optional[ModelProfile]:
+    def get_model(self, tier: str) -> ModelProfile | None:
         """Get the model profile for a tier."""
         return self.models.get(tier)
 
@@ -234,7 +237,7 @@ class SwarmConfig:
 
         return config
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate configuration, return list of errors."""
         errors = []
 

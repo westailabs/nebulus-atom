@@ -9,9 +9,8 @@ from __future__ import annotations
 import logging
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.registry import OverlordConfig
 
@@ -26,7 +25,7 @@ class MirrorState:
     """Status of a single project mirror."""
 
     exists: bool
-    last_fetch: Optional[datetime] = None
+    last_fetch: datetime | None = None
     ref_count: int = 0
 
 
@@ -41,7 +40,7 @@ class MirrorManager:
     def __init__(
         self,
         config: OverlordConfig,
-        mirror_root: Optional[Path] = None,
+        mirror_root: Path | None = None,
     ) -> None:
         self.config = config
         self.mirror_root = mirror_root or DEFAULT_MIRROR_ROOT
@@ -186,7 +185,7 @@ class MirrorManager:
         return states
 
     @staticmethod
-    def _get_last_fetch(mirror_path: Path) -> Optional[datetime]:
+    def _get_last_fetch(mirror_path: Path) -> datetime | None:
         """Get the timestamp of the last fetch for a mirror.
 
         Args:
@@ -198,7 +197,7 @@ class MirrorManager:
         fetch_head = mirror_path / "FETCH_HEAD"
         if fetch_head.exists():
             mtime = fetch_head.stat().st_mtime
-            return datetime.fromtimestamp(mtime, tz=timezone.utc)
+            return datetime.fromtimestamp(mtime, tz=UTC)
         return None
 
     @staticmethod
@@ -333,7 +332,7 @@ class MirrorManager:
             )
             return False
 
-    def list_worktrees(self, project: Optional[str] = None) -> dict[str, list[Path]]:
+    def list_worktrees(self, project: str | None = None) -> dict[str, list[Path]]:
         """List active worktrees per project.
 
         Scans ~/.nebulus/worktrees/{project}/ directories.

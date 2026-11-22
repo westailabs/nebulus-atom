@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from nebulus_swarm.overlord.governance import (
     GovernanceEngine,
     GovernanceResult,
@@ -14,7 +13,6 @@ from nebulus_swarm.overlord.governance import (
 )
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
 from nebulus_swarm.overlord.work_queue import Task, WorkQueue
-
 
 # --- Fixtures ---
 

@@ -1,7 +1,9 @@
 """Tests for CLI features added during UX improvements."""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nebulus_atom.views.cli_view import CLIView
 
 

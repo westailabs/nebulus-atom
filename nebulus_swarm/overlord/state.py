@@ -2,9 +2,10 @@
 
 import os
 import sqlite3
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import datetime
-from typing import TYPE_CHECKING, Generator, List, Optional
+from typing import TYPE_CHECKING
 
 from nebulus_swarm.models.minion import Minion, MinionStatus
 
@@ -140,11 +141,11 @@ class OverlordState:
     def update_minion(
         self,
         minion_id: str,
-        status: Optional[MinionStatus] = None,
-        container_id: Optional[str] = None,
-        last_heartbeat: Optional[datetime] = None,
-        pr_number: Optional[int] = None,
-        error_message: Optional[str] = None,
+        status: MinionStatus | None = None,
+        container_id: str | None = None,
+        last_heartbeat: datetime | None = None,
+        pr_number: int | None = None,
+        error_message: str | None = None,
     ) -> None:
         """Update a minion's state."""
         updates = []
@@ -178,7 +179,7 @@ class OverlordState:
                 params,
             )
 
-    def get_minion(self, minion_id: str) -> Optional[Minion]:
+    def get_minion(self, minion_id: str) -> Minion | None:
         """Get a minion by ID."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -188,7 +189,7 @@ class OverlordState:
                 return self._row_to_minion(row)
             return None
 
-    def get_active_minions(self) -> List[Minion]:
+    def get_active_minions(self) -> list[Minion]:
         """Get all active (non-completed) minions."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -198,7 +199,7 @@ class OverlordState:
             )
             return [self._row_to_minion(row) for row in cursor.fetchall()]
 
-    def get_minion_by_issue(self, repo: str, issue_number: int) -> Optional[Minion]:
+    def get_minion_by_issue(self, repo: str, issue_number: int) -> Minion | None:
         """Get active minion working on a specific issue."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -229,8 +230,8 @@ class OverlordState:
         self,
         minion: Minion,
         status: MinionStatus,
-        pr_number: Optional[int] = None,
-        error_message: Optional[str] = None,
+        pr_number: int | None = None,
+        error_message: str | None = None,
     ) -> None:
         """Record completed work to history and remove from active minions."""
         completed_at = datetime.now()
@@ -265,10 +266,10 @@ class OverlordState:
 
     def get_work_history(
         self,
-        repo: Optional[str] = None,
-        status: Optional[str] = None,
+        repo: str | None = None,
+        status: str | None = None,
         limit: int = 50,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Get recent work history.
 
         Args:
@@ -298,7 +299,7 @@ class OverlordState:
             cursor.execute(query, params)
             return [dict(row) for row in cursor.fetchall()]
 
-    def get_distinct_repos(self) -> List[str]:
+    def get_distinct_repos(self) -> list[str]:
         """Get list of distinct repositories from work history.
 
         Returns:
@@ -335,7 +336,7 @@ class OverlordState:
                 ),
             )
 
-    def get_evaluations(self, repo: str, pr_number: int) -> List[dict]:
+    def get_evaluations(self, repo: str, pr_number: int) -> list[dict]:
         """Get evaluation history for a PR.
 
         Args:

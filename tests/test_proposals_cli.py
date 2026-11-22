@@ -1,7 +1,7 @@
 # tests/test_proposals_cli.py
 """Tests for the proposals CLI commands."""
 
-from nebulus_atom.commands.proposals import format_proposal_list, format_proposal_detail
+from nebulus_atom.commands.proposals import format_proposal_detail, format_proposal_list
 from nebulus_swarm.overlord.proposals import (
     EnhancementProposal,
     ProposalType,

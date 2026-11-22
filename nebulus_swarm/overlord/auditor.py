@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class AuditIssue:
     check: str
     severity: AuditSeverity
     message: str
-    location: Optional[str] = None
+    location: str | None = None
 
 
 @dataclass
@@ -40,7 +40,7 @@ class AuditResult:
     """Result of auditing worker output."""
 
     passed: bool
-    issues: List[AuditIssue] = field(default_factory=list)
+    issues: list[AuditIssue] = field(default_factory=list)
     confidence: float = 1.0  # 0.0-1.0, lower if heuristics uncertain
     timestamp: datetime = field(default_factory=datetime.now)
 
@@ -58,9 +58,9 @@ class AuditorConfig:
     """Configuration for the auditor."""
 
     enabled: bool = False
-    model: Optional[str] = None  # If set, use LLM for additional checks
+    model: str | None = None  # If set, use LLM for additional checks
     strict: bool = False  # If True, warnings become errors
-    llm_base_url: Optional[str] = None
+    llm_base_url: str | None = None
     llm_timeout: int = 30
 
     @classmethod
@@ -99,7 +99,7 @@ class Auditor:
         (r"rm\s+-rf\s+/", "dangerous rm command"),
     ]
 
-    def __init__(self, config: Optional[AuditorConfig] = None):
+    def __init__(self, config: AuditorConfig | None = None):
         """Initialize auditor.
 
         Args:
@@ -116,7 +116,7 @@ class Auditor:
         self,
         content: str,
         content_type: str = "text",
-        schema: Optional[Dict[str, Any]] = None,
+        schema: dict[str, Any] | None = None,
     ) -> AuditResult:
         """Audit worker output.
 
@@ -131,7 +131,7 @@ class Auditor:
         if not self.config.enabled:
             return AuditResult(passed=True, confidence=1.0)
 
-        issues: List[AuditIssue] = []
+        issues: list[AuditIssue] = []
 
         # Run heuristic checks based on content type
         if content_type == "python":
@@ -165,7 +165,7 @@ class Auditor:
             confidence=confidence,
         )
 
-    def _check_python_syntax(self, code: str) -> List[AuditIssue]:
+    def _check_python_syntax(self, code: str) -> list[AuditIssue]:
         """Check Python code for syntax errors."""
         issues = []
         try:
@@ -181,7 +181,7 @@ class Auditor:
             )
         return issues
 
-    def _check_json_syntax(self, content: str) -> List[AuditIssue]:
+    def _check_json_syntax(self, content: str) -> list[AuditIssue]:
         """Check JSON for syntax errors."""
         issues = []
         try:
@@ -198,8 +198,8 @@ class Auditor:
         return issues
 
     def _check_json_schema(
-        self, content: str, schema: Dict[str, Any]
-    ) -> List[AuditIssue]:
+        self, content: str, schema: dict[str, Any]
+    ) -> list[AuditIssue]:
         """Validate JSON against a schema (basic validation)."""
         issues = []
         try:
@@ -251,7 +251,7 @@ class Auditor:
             pass  # Already caught by syntax check
         return issues
 
-    def _check_safety_patterns(self, content: str) -> List[AuditIssue]:
+    def _check_safety_patterns(self, content: str) -> list[AuditIssue]:
         """Check for dangerous patterns in content."""
         issues = []
         for pattern, message in self.SAFETY_PATTERNS:
@@ -265,7 +265,7 @@ class Auditor:
                 )
         return issues
 
-    def _run_llm_check(self, content: str, content_type: str) -> List[AuditIssue]:
+    def _run_llm_check(self, content: str, content_type: str) -> list[AuditIssue]:
         """Run optional LLM-based semantic check."""
         issues = []
         if not self.config.model or not self.config.llm_base_url:

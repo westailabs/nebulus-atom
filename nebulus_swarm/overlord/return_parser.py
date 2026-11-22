@@ -1,9 +1,8 @@
 """Structured return block parser for worker outputs."""
 
-import re
 import logging
+import re
 from dataclasses import dataclass
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,13 +13,13 @@ class ReturnBlock:
     summary: str
     files_created: list[str]
     files_modified: list[str]
-    tests_passed: Optional[str] = None
-    tests_failed: Optional[str] = None
-    blockers: Optional[str] = "None"
+    tests_passed: str | None = None
+    tests_failed: str | None = None
+    blockers: str | None = "None"
     next_action: str = "review"
 
 
-def parse_return_block(output: str) -> Optional[ReturnBlock]:
+def parse_return_block(output: str) -> ReturnBlock | None:
     pattern = r"---NEBULUS-RETURN---\s+(.*?)\s+---END-NEBULUS-RETURN---"
     match = re.search(pattern, output, re.S)
     if not match:

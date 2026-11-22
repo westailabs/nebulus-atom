@@ -9,8 +9,8 @@ pytest.importorskip("openai")
 
 from nebulus_atom.commands.review_pr import (
     detect_repo_from_git,
-    load_review_config,
     format_review_output,
+    load_review_config,
 )
 from nebulus_swarm.reviewer.checks import CheckResult, ChecksReport, CheckStatus
 from nebulus_swarm.reviewer.pr_reviewer import (
@@ -20,7 +20,6 @@ from nebulus_swarm.reviewer.pr_reviewer import (
     ReviewResult,
 )
 from nebulus_swarm.reviewer.workflow import WorkflowResult
-
 
 # ---------------------------------------------------------------------------
 # detect_repo_from_git

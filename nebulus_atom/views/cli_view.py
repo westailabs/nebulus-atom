@@ -1,21 +1,19 @@
-from typing import Dict, Any, ContextManager, List
-from contextlib import contextmanager
-
-from rich.console import Console
-from rich.tree import Tree
+import asyncio
+import os
+import subprocess
+import sys
+from contextlib import AbstractContextManager, contextmanager
+from typing import Any
 
 # Prompt Toolkit Imports
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.styles import Style as PromptStyle
 from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
-
-import sys
-import os
-import subprocess
-import asyncio
+from prompt_toolkit.styles import Style as PromptStyle
+from rich.console import Console
+from rich.tree import Tree
 
 from nebulus_atom.config import Config
 from nebulus_atom.views.base_view import BaseView
@@ -24,9 +22,9 @@ from nebulus_atom.views.base_view import BaseView
 class CLIView(BaseView):
     async def print_welcome(self):
         """Displays the welcome message in a panel."""
+        from rich import box
         from rich.panel import Panel
         from rich.text import Text
-        from rich import box
 
         model = os.environ.get("NEBULUS_MODEL", Config.NEBULUS_MODEL)
 
@@ -198,8 +196,8 @@ class CLIView(BaseView):
 
     def _print_help(self):
         """Print help information."""
-        from rich.table import Table
         from rich.panel import Panel
+        from rich.table import Table
 
         help_table = Table(show_header=False, box=None, padding=(0, 2))
         help_table.add_column("Command", style="cyan")
@@ -262,12 +260,12 @@ class CLIView(BaseView):
         grid.add_row(left_text, right_text)
 
         # Wrap in a style to match the PTK toolbar background
-        from rich.panel import Panel
         from rich import box
+        from rich.panel import Panel
 
         return Panel(grid, style="white on #222222", box=box.SIMPLE, padding=(0, 1))
 
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         if os.environ.get("MINI_NEBULUS_HEADLESS") == "1":
             # Headless mode: Simple log, no Rich Live
             self.console.print(f"[dim]Thinking: {text}[/dim]")
@@ -386,7 +384,7 @@ class CLIView(BaseView):
 
         self.console.print()
 
-    async def print_telemetry(self, metrics: Dict[str, Any]):
+    async def print_telemetry(self, metrics: dict[str, Any]):
         """Print performance metrics (if any)."""
         if metrics:
             ttft = metrics.get("ttft_ms")
@@ -403,7 +401,7 @@ class CLIView(BaseView):
             f"  [green]✓[/green] [dim]{tool_name}[/dim] → [dim]{preview}[/dim]"
         )
 
-    async def print_plan(self, plan_data: Dict[str, Any]):
+    async def print_plan(self, plan_data: dict[str, Any]):
         goal = plan_data.get("goal", "Unknown Goal")
         tasks = plan_data.get("tasks", [])
 
@@ -420,7 +418,7 @@ class CLIView(BaseView):
 
         self.console.print(tree)
 
-    async def print_context(self, context_data: List[str]):
+    async def print_context(self, context_data: list[str]):
         # Optional: Print context if needed by CLI
         pass
 

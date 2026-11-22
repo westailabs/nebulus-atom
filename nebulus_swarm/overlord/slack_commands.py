@@ -11,10 +11,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from pathlib import Path
 import re
 import time
-from typing import TYPE_CHECKING, Optional
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from openai import AsyncOpenAI
 
@@ -77,8 +77,8 @@ class SlackCommandRouter:
     def __init__(
         self,
         config: OverlordConfig,
-        proposal_manager: Optional[ProposalManager] = None,
-        workspace_root: Optional[Path] = None,
+        proposal_manager: ProposalManager | None = None,
+        workspace_root: Path | None = None,
     ):
         """Initialize the command router with the full Phase 2 stack.
 
@@ -104,9 +104,9 @@ class SlackCommandRouter:
 
         # LLM chat fallback
         self._llm_config = OverlordLLMConfig()
-        self._llm_client: Optional[AsyncOpenAI] = None
+        self._llm_client: AsyncOpenAI | None = None
         self._chat_history: dict[str, list[dict[str, str]]] = {}
-        self._ecosystem_cache: Optional[list] = None
+        self._ecosystem_cache: list | None = None
         self._cache_ts: float = 0.0
         self._CACHE_TTL: float = 60.0
 
@@ -120,7 +120,7 @@ class SlackCommandRouter:
         self._command_validator = CommandValidator(config)
 
         # Claude worker for investigation dispatch
-        self._claude_worker: Optional[ClaudeWorker] = None
+        self._claude_worker: ClaudeWorker | None = None
         workers_raw = getattr(config, "workers", {}) or {}
         claude_cfg = workers_raw.get("claude")
         if claude_cfg and isinstance(claude_cfg, dict) and claude_cfg.get("enabled"):
@@ -131,7 +131,7 @@ class SlackCommandRouter:
                 self._claude_worker = ClaudeWorker(worker_config)
 
         # Slack bot reference for buffered responses (set externally by daemon)
-        self.slack_bot: Optional[object] = None
+        self.slack_bot: object | None = None
 
     async def handle(self, text: str, user_id: str, channel_id: str) -> str:
         """Parse a command and dispatch to the appropriate handler.
@@ -253,7 +253,7 @@ class SlackCommandRouter:
 
         return "\n".join(sections).strip()
 
-    def _infer_project(self, text: str) -> Optional[str]:
+    def _infer_project(self, text: str) -> str | None:
         """Infer a project name from freeform text.
 
         Args:
@@ -338,7 +338,7 @@ class SlackCommandRouter:
         except Exception:
             return f"LLM Fallback: ❌ unreachable (`{self._llm_config.base_url}`)"
 
-    async def _handle_status(self, project: Optional[str]) -> str:
+    async def _handle_status(self, project: str | None) -> str:
         """Show ecosystem or project health via scanner.
 
         Args:
@@ -361,7 +361,7 @@ class SlackCommandRouter:
             status_text += "\n" + await self._get_llm_health_line()
             return status_text
 
-    async def _handle_scan(self, project: Optional[str]) -> str:
+    async def _handle_scan(self, project: str | None) -> str:
         """Detailed scan with issue detection and proactive detectors.
 
         Args:
@@ -495,7 +495,7 @@ class SlackCommandRouter:
 
         return "\n".join(lines)
 
-    async def _handle_autonomy(self, level: Optional[str]) -> str:
+    async def _handle_autonomy(self, level: str | None) -> str:
         """Show or describe autonomy level.
 
         Args:
@@ -535,7 +535,7 @@ class SlackCommandRouter:
 
     def _parse_memory_filters(
         self, query: str
-    ) -> tuple[str, Optional[str], Optional[str], Optional[str]]:
+    ) -> tuple[str, str | None, str | None, str | None]:
         """Extract cat: and proj: filters from a memory query.
 
         Args:
@@ -545,8 +545,8 @@ class SlackCommandRouter:
             Tuple of (clean_query, category, project, error).
             If error is not None, the other values are meaningless.
         """
-        category: Optional[str] = None
-        project: Optional[str] = None
+        category: str | None = None
+        project: str | None = None
 
         for match in _RE_MEMORY_FILTER.finditer(query):
             key = match.group(1).lower()
@@ -959,7 +959,7 @@ class SlackCommandRouter:
             # Validate LLM-suggested commands before returning
             return self._command_validator.annotate_response(content)
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("LLM chat fallback timed out for: %s", text[:100])
             return (
                 f"⏱️ LLM timed out ({self._llm_config.timeout}s). "
@@ -1206,7 +1206,7 @@ class CommandValidator:
     the user. Used as a post-filter on LLM fallback responses.
     """
 
-    def __init__(self, config: "OverlordConfig") -> None:
+    def __init__(self, config: OverlordConfig) -> None:
         self._project_names: set[str] = set(config.projects.keys())
 
     def validate_suggestion(self, text: str) -> list[str]:

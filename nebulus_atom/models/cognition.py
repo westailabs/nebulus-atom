@@ -5,9 +5,8 @@ Represents reasoning chains, complexity analysis, and cognitive state.
 """
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import List
 from datetime import datetime
+from enum import Enum
 
 
 class TaskComplexity(Enum):
@@ -37,7 +36,7 @@ class ClarificationQuestion:
     """A question to clarify ambiguous requirements."""
 
     question: str
-    options: List[str] = field(default_factory=list)
+    options: list[str] = field(default_factory=list)
     importance: str = "medium"  # "low" | "medium" | "high"
 
 
@@ -46,13 +45,13 @@ class CognitionResult:
     """Result of cognitive analysis of a task."""
 
     task_complexity: TaskComplexity
-    reasoning_chain: List[ReasoningStep] = field(default_factory=list)
+    reasoning_chain: list[ReasoningStep] = field(default_factory=list)
     recommended_approach: str = ""
     confidence: float = 1.0  # Overall confidence 0.0 - 1.0
     clarification_needed: bool = False
-    clarification_questions: List[ClarificationQuestion] = field(default_factory=list)
+    clarification_questions: list[ClarificationQuestion] = field(default_factory=list)
     estimated_steps: int = 1
-    potential_risks: List[str] = field(default_factory=list)
+    potential_risks: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.now)
 
     def __post_init__(self) -> None:
@@ -89,7 +88,7 @@ class SelfCritiqueResult:
     """Result of self-critique analysis."""
 
     is_valid: bool
-    issues_found: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+    issues_found: list[str] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
     confidence: float = 1.0
     should_retry: bool = False

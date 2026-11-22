@@ -4,13 +4,12 @@ import os
 import re
 import subprocess
 import sys
-from typing import Optional
 
 from nebulus_swarm.reviewer.checks import CheckStatus
 from nebulus_swarm.reviewer.workflow import ReviewConfig, WorkflowResult
 
 
-def detect_repo_from_git() -> Optional[str]:
+def detect_repo_from_git() -> str | None:
     """Detect the GitHub repo from the current directory's git remote.
 
     Parses the 'origin' remote URL and extracts owner/repo.
@@ -149,7 +148,7 @@ def format_review_output(result: WorkflowResult) -> str:
 
 def run_review(
     pr_number: int,
-    repo: Optional[str] = None,
+    repo: str | None = None,
     run_checks: bool = True,
 ) -> WorkflowResult:
     """Execute the review workflow.

@@ -1,6 +1,6 @@
 import os
 import stat
-from typing import List
+
 from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -13,7 +13,7 @@ class MacroService:
             os.makedirs(self.macro_dir, exist_ok=True)
 
     def create_macro(
-        self, name: str, commands: List[str], description: str = ""
+        self, name: str, commands: list[str], description: str = ""
     ) -> str:
         """Creates a shell script macro."""
         if not name.endswith(".sh"):

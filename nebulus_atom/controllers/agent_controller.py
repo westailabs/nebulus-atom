@@ -6,19 +6,18 @@ to manage CLI and TUI interactions.
 """
 
 import asyncio
-from typing import Optional
 
 from nebulus_atom.config import Config
+from nebulus_atom.controllers.turn_processor import TurnCallbacks, TurnProcessor
 from nebulus_atom.models.history import HistoryManager
 from nebulus_atom.models.task import TaskStatus
 from nebulus_atom.services.openai_service import OpenAIService
+from nebulus_atom.services.response_parser import ResponseParser
 from nebulus_atom.services.tool_executor import ToolExecutor
 from nebulus_atom.services.tool_registry import ToolRegistry
-from nebulus_atom.services.response_parser import ResponseParser
-from nebulus_atom.controllers.turn_processor import TurnProcessor, TurnCallbacks
+from nebulus_atom.utils.logger import setup_logger
 from nebulus_atom.views.base_view import BaseView
 from nebulus_atom.views.cli_view import CLIView
-from nebulus_atom.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -26,7 +25,7 @@ logger = setup_logger(__name__)
 class AgentController:
     """Orchestrates conversation flow between user, LLM, and tools."""
 
-    def __init__(self, view: Optional[BaseView] = None) -> None:
+    def __init__(self, view: BaseView | None = None) -> None:
         """
         Initialize the agent controller.
 
@@ -37,7 +36,7 @@ class AgentController:
         ToolExecutor.initialize()
 
         self.auto_mode = False
-        self.pending_tdd_goal: Optional[str] = None
+        self.pending_tdd_goal: str | None = None
 
         self._tool_registry = ToolRegistry()
         self._response_parser = ResponseParser()
@@ -120,7 +119,7 @@ Example:
             return False
 
     async def start(
-        self, initial_prompt: Optional[str] = None, session_id: str = "default"
+        self, initial_prompt: str | None = None, session_id: str = "default"
     ) -> None:
         """
         Start the agent interaction loop.

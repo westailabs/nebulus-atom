@@ -19,7 +19,6 @@ Complexity scoring heuristics:
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from nebulus_atom.utils.logger import setup_logger
 
@@ -70,10 +69,10 @@ COMPLEXITY_SIGNALS = {
 class ModelRouter:
     """Routes workflow steps to appropriate models based on complexity."""
 
-    def __init__(self, default_model: Optional[str] = None):
+    def __init__(self, default_model: str | None = None):
         self.default_model = default_model or "qwen2.5:14b"
 
-    def route(self, prompt: str, model_hint: Optional[str] = None) -> str:
+    def route(self, prompt: str, model_hint: str | None = None) -> str:
         """
         Select model for a given prompt.
 

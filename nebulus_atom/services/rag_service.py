@@ -1,10 +1,11 @@
-import os
 import asyncio
+import os
+import time
+import uuid
+from typing import Any
+
 import chromadb
 from sentence_transformers import SentenceTransformer
-from typing import List, Dict, Any
-import uuid
-import time
 from transformers import logging as transformers_logging
 
 transformers_logging.set_verbosity_error()
@@ -75,9 +76,7 @@ class RagService:
                 if filename.endswith(".py") or filename.endswith(".md"):
                     filepath = os.path.join(dirpath, filename)
                     try:
-                        with open(
-                            filepath, "r", encoding="utf-8", errors="ignore"
-                        ) as f:
+                        with open(filepath, encoding="utf-8", errors="ignore") as f:
                             content = f.read()
                             if content.strip():
                                 documents.append(content[:2000])  # Chunk limit
@@ -95,13 +94,13 @@ class RagService:
             return f"Indexed {len(documents)} files."
         return "No files found to index."
 
-    async def search_code(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
+    async def search_code(self, query: str, n_results: int = 5) -> list[dict[str, Any]]:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None, self._search_code_sync, query, n_results
         )
 
-    def _search_code_sync(self, query: str, n_results: int) -> List[Dict[str, Any]]:
+    def _search_code_sync(self, query: str, n_results: int) -> list[dict[str, Any]]:
         query_embedding = self.model.encode([query]).tolist()
         results = self.collection.query(
             query_embeddings=query_embedding, n_results=n_results
@@ -146,13 +145,13 @@ class RagService:
 
     async def search_history(
         self, query: str, n_results: int = 5
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None, self._search_history_sync, query, n_results
         )
 
-    def _search_history_sync(self, query: str, n_results: int) -> List[Dict[str, Any]]:
+    def _search_history_sync(self, query: str, n_results: int) -> list[dict[str, Any]]:
         query_embedding = self.model.encode([query]).tolist()
         results = self.history_collection.query(
             query_embeddings=query_embedding, n_results=n_results

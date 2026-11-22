@@ -6,12 +6,11 @@ from nebulus_atom.models.failure_memory import (
     FailureContext,
     FailurePattern,
 )
+from nebulus_atom.services.cognition_service import CognitionService
 from nebulus_atom.services.failure_memory_service import (
     FailureMemoryService,
     FailureMemoryServiceManager,
 )
-from nebulus_atom.services.cognition_service import CognitionService
-
 
 # ── Error Classification ──────────────────────────────────────────────
 

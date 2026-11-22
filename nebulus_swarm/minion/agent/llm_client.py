@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from openai import OpenAI
 
@@ -31,9 +31,9 @@ class LLMResponse:
     """Response from LLM."""
 
     content: str
-    tool_calls: List[Dict[str, Any]]
+    tool_calls: list[dict[str, Any]]
     finish_reason: str
-    usage: Optional[Dict[str, int]] = None
+    usage: dict[str, int] | None = None
 
     @property
     def has_tool_calls(self) -> bool:
@@ -44,7 +44,7 @@ class LLMResponse:
 class LLMClient:
     """Wrapper around OpenAI SDK for Nebulus/local LLM servers."""
 
-    def __init__(self, config: LLMConfig, pool: Optional[LLMPool] = None):
+    def __init__(self, config: LLMConfig, pool: LLMPool | None = None):
         """Initialize LLM client.
 
         Args:
@@ -64,8 +64,8 @@ class LLMClient:
 
     def chat(
         self,
-        messages: List[Dict[str, Any]],
-        tools: Optional[List[Dict[str, Any]]] = None,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
     ) -> LLMResponse:
         """Send a chat completion request.
 
@@ -136,7 +136,7 @@ class LLMClient:
             if self._pool:
                 self._pool.release()
 
-    def simple_chat(self, prompt: str, system: Optional[str] = None) -> str:
+    def simple_chat(self, prompt: str, system: str | None = None) -> str:
         """Simple single-turn chat without tools.
 
         Args:

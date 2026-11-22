@@ -6,7 +6,6 @@ confidence penalty context to the cognition system.
 """
 
 from dataclasses import dataclass, field
-from typing import List
 
 
 @dataclass
@@ -58,8 +57,8 @@ class FailurePattern:
 class FailureContext:
     """Container passed to CognitionService with aggregated failure info."""
 
-    patterns: List[FailurePattern] = field(default_factory=list)
-    warning_messages: List[str] = field(default_factory=list)
+    patterns: list[FailurePattern] = field(default_factory=list)
+    warning_messages: list[str] = field(default_factory=list)
 
     @property
     def total_penalty(self) -> float:

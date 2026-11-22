@@ -1,5 +1,6 @@
 import os
 import stat
+
 from nebulus_atom.services.macro_service import MacroService
 
 

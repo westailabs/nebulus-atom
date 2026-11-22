@@ -1,7 +1,7 @@
 """Tests for Nebulus Swarm components."""
 
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -428,14 +428,13 @@ class TestGitHubQueue:
     @patch("nebulus_swarm.overlord.github_queue.Github")
     def test_get_rate_limit(self, mock_github_class):
         """Test rate limit status retrieval."""
-        from datetime import timezone
 
         from nebulus_swarm.overlord.github_queue import GitHubQueue
 
         mock_rate = mock_github_class.return_value.get_rate_limit.return_value
         mock_rate.core.remaining = 4500
         mock_rate.core.limit = 5000
-        mock_rate.core.reset = datetime.now(timezone.utc)
+        mock_rate.core.reset = datetime.now(UTC)
 
         queue = GitHubQueue(token="test", watched_repos=["owner/repo"])
         rate_limit = queue.get_rate_limit()
@@ -644,18 +643,19 @@ class TestLLMWarmup:
     @pytest.mark.asyncio
     async def test_warm_up_llm_timeout(self):
         """Test LLM warm-up timeout handling."""
-        import asyncio
 
         import aiohttp
 
         # Test that timeout is handled gracefully
         timeout = aiohttp.ClientTimeout(total=0.001)
         try:
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                # This should timeout immediately
-                async with session.get("http://10.255.255.1/models"):
-                    pass
-        except asyncio.TimeoutError:
+            # This should timeout immediately
+            async with (
+                aiohttp.ClientSession(timeout=timeout) as session,
+                session.get("http://10.255.255.1/models"),
+            ):
+                pass
+        except TimeoutError:
             # Expected behavior
             pass
         except Exception:

@@ -6,8 +6,6 @@ Follows the same Typer/Rich patterns as overlord_commands.py.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -26,7 +24,7 @@ STATUS_COLORS: dict[str, str] = {
 }
 
 
-def _resolve_task_id(queue, short_id: str) -> Optional[str]:
+def _resolve_task_id(queue, short_id: str) -> str | None:
     """Resolve a short ID prefix to a full task UUID.
 
     Supports first-8-char matching like git short hashes.
@@ -70,10 +68,8 @@ def _load_queue():
 
 @queue_app.command("list")
 def queue_list(
-    status: Optional[str] = typer.Option(
-        None, "--status", "-s", help="Filter by status"
-    ),
-    project: Optional[str] = typer.Option(
+    status: str | None = typer.Option(None, "--status", "-s", help="Filter by status"),
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Filter by project"
     ),
     limit: int = typer.Option(50, "--limit", "-l", help="Max results"),
@@ -118,10 +114,10 @@ def queue_list(
 def queue_triage(
     task_id: str = typer.Argument(..., help="Task ID (or first 8 chars)"),
     status: str = typer.Option(..., "--status", "-s", help="Target status"),
-    reason: Optional[str] = typer.Option(
+    reason: str | None = typer.Option(
         None, "--reason", "-r", help="Reason for transition"
     ),
-    token_budget: Optional[int] = typer.Option(
+    token_budget: int | None = typer.Option(
         None, "--token-budget", help="Set per-task token budget"
     ),
 ) -> None:
@@ -150,13 +146,13 @@ def queue_triage(
 
 @queue_app.command("sync")
 def queue_sync(
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Sync single project"
     ),
     label: str = typer.Option(
         "nebulus-ready", "--label", help="GitHub label to filter"
     ),
-    token_budget: Optional[int] = typer.Option(
+    token_budget: int | None = typer.Option(
         None, "--token-budget", help="Default token budget for synced tasks"
     ),
 ) -> None:

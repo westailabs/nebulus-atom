@@ -6,7 +6,7 @@ import logging
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from nebulus_swarm.overlord.action_scope import ActionScope
@@ -39,7 +39,7 @@ class DispatchStep:
     action: str
     project: str
     dependencies: list[str] = field(default_factory=list)
-    model_tier: Optional[str] = None
+    model_tier: str | None = None
     timeout: int = 300
 
 
@@ -50,7 +50,7 @@ class StepResult:
     step_id: str
     success: bool
     output: str = ""
-    error: Optional[str] = None
+    error: str | None = None
     duration: float = 0.0
 
 
@@ -83,7 +83,7 @@ class DispatchEngine:
         autonomy: AutonomyEngine,
         graph: DependencyGraph,
         model_router: ModelRouter,
-        memory: Optional[OverlordMemory] = None,
+        memory: OverlordMemory | None = None,
     ):
         """Initialize the dispatch engine.
 
@@ -101,7 +101,7 @@ class DispatchEngine:
         self.memory = memory
 
         # Initialize Claude worker if configured
-        self.claude_worker: Optional[ClaudeWorker] = None
+        self.claude_worker: ClaudeWorker | None = None
         self._init_claude_worker()
 
     def _init_claude_worker(self) -> None:
@@ -386,7 +386,7 @@ class DispatchEngine:
             return {"success": False, "error": f"Failed to execute: {e}"}
 
     @staticmethod
-    def _action_to_command(action: str) -> Optional[str]:
+    def _action_to_command(action: str) -> str | None:
         """Map an action description to a shell command.
 
         Args:
@@ -441,7 +441,7 @@ class DispatchEngine:
         return "feature"  # Default
 
     @staticmethod
-    def _can_execute_in(command: str, project_path: Optional[Path]) -> bool:
+    def _can_execute_in(command: str, project_path: Path | None) -> bool:
         """Check if a command can meaningfully run in the project path.
 
         Args:

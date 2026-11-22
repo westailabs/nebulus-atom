@@ -13,11 +13,12 @@ import asyncio
 import logging
 import sqlite3
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Generator, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from nebulus_swarm.overlord.action_scope import ActionScope
@@ -55,10 +56,10 @@ class Proposal:
     affects_remote: bool
     reason: str
     state: ProposalState
-    thread_ts: Optional[str] = None
+    thread_ts: str | None = None
     created_at: str = ""
-    resolved_at: Optional[str] = None
-    result_summary: Optional[str] = None
+    resolved_at: str | None = None
+    result_summary: str | None = None
 
     @property
     def is_pending(self) -> bool:
@@ -125,7 +126,7 @@ class ProposalStore:
                 ),
             )
 
-    def get(self, proposal_id: str) -> Optional[Proposal]:
+    def get(self, proposal_id: str) -> Proposal | None:
         """Get a proposal by ID."""
         with self._conn() as conn:
             row = conn.execute(
@@ -134,7 +135,7 @@ class ProposalStore:
             ).fetchone()
             return self._row_to_proposal(row) if row else None
 
-    def get_by_thread(self, thread_ts: str) -> Optional[Proposal]:
+    def get_by_thread(self, thread_ts: str) -> Proposal | None:
         """Get a proposal by its Slack thread timestamp."""
         with self._conn() as conn:
             row = conn.execute(
@@ -156,7 +157,7 @@ class ProposalStore:
         self,
         proposal_id: str,
         state: ProposalState,
-        result_summary: Optional[str] = None,
+        result_summary: str | None = None,
     ) -> None:
         """Update a proposal's state."""
         resolved_at = None
@@ -166,7 +167,7 @@ class ProposalStore:
             ProposalState.DENIED,
             ProposalState.EXPIRED,
         ):
-            resolved_at = datetime.now(timezone.utc).isoformat()
+            resolved_at = datetime.now(UTC).isoformat()
 
         with self._conn() as conn:
             conn.execute(
@@ -179,15 +180,13 @@ class ProposalStore:
         """Mark expired pending proposals. Returns count expired."""
         from datetime import timedelta
 
-        cutoff = (
-            datetime.now(timezone.utc) - timedelta(minutes=ttl_minutes)
-        ).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(minutes=ttl_minutes)).isoformat()
 
         with self._conn() as conn:
             cursor = conn.execute(
                 "UPDATE overlord_proposals SET state = 'expired', "
                 "resolved_at = ? WHERE state = 'pending' AND created_at < ?",
-                (datetime.now(timezone.utc).isoformat(), cutoff),
+                (datetime.now(UTC).isoformat(), cutoff),
             )
             return cursor.rowcount
 
@@ -216,8 +215,8 @@ class ProposalManager:
         self,
         store: ProposalStore,
         dispatch: DispatchEngine,
-        slack_bot: Optional[SlackBot] = None,
-        memory: Optional[OverlordMemory] = None,
+        slack_bot: SlackBot | None = None,
+        memory: OverlordMemory | None = None,
     ):
         """Initialize the proposal manager.
 
@@ -239,7 +238,7 @@ class ProposalManager:
         task: str,
         scope: ActionScope,
         reason: str,
-        plan: Optional[DispatchPlan] = None,
+        plan: DispatchPlan | None = None,
     ) -> str:
         """Create a proposal, post to Slack, return proposal_id.
 
@@ -260,7 +259,7 @@ class ProposalManager:
             affects_remote=scope.affects_remote,
             reason=reason,
             state=ProposalState.PENDING,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
 
         if plan:
@@ -282,7 +281,7 @@ class ProposalManager:
         logger.info("Created proposal %s: %s", proposal.id, task)
         return proposal.id
 
-    async def handle_reply(self, thread_ts: str, text: str) -> Optional[str]:
+    async def handle_reply(self, thread_ts: str, text: str) -> str | None:
         """Handle a Slack thread reply that may be an approval or denial.
 
         Args:
@@ -315,7 +314,7 @@ class ProposalManager:
 
         return None  # Not a recognized approval/denial reply
 
-    async def execute_approved(self, proposal_id: str) -> Optional[DispatchResult]:
+    async def execute_approved(self, proposal_id: str) -> DispatchResult | None:
         """Execute an approved proposal via DispatchEngine.
 
         Args:

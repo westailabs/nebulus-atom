@@ -1,6 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+
 from nebulus_atom.config import Config
 
 
@@ -35,7 +36,7 @@ def setup_logger(name: str) -> logging.Logger:
         )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-    except (IOError, PermissionError):
+    except (OSError, PermissionError):
         # If we can't write to file, create a NullHandler to suppress errors
         logger.addHandler(logging.NullHandler())
 

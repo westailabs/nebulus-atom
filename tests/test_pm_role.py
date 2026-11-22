@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 from nebulus_swarm.overlord.dispatcher import DispatchContext
 from nebulus_swarm.overlord.mission_brief import (
     _PM_ROLE_SECTION,
@@ -13,7 +12,6 @@ from nebulus_swarm.overlord.mission_brief import (
 from nebulus_swarm.overlord.registry import ProjectConfig
 from nebulus_swarm.overlord.work_queue import Task
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
-
 
 # --- Fixtures ---
 
@@ -136,8 +134,9 @@ def test_pm_role_section_constant():
 
 def test_dispatch_commands_has_role_option():
     """dispatch run command should accept --role option."""
-    from nebulus_atom.commands.dispatch_commands import dispatch_run
     import inspect
+
+    from nebulus_atom.commands.dispatch_commands import dispatch_run
 
     sig = inspect.signature(dispatch_run)
     assert "role" in sig.parameters

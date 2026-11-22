@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock
 
-
 from nebulus_swarm.overlord.dispatcher import Dispatcher
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
 from nebulus_swarm.overlord.work_queue import (
@@ -14,7 +13,6 @@ from nebulus_swarm.overlord.work_queue import (
     WorkQueue,
 )
 from nebulus_swarm.overlord.workers.base import BaseWorker, WorkerConfig, WorkerResult
-
 
 # --- WorkerResult backward compat ---
 

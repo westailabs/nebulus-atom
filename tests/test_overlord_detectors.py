@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from nebulus_swarm.overlord.autonomy import AutonomyEngine
 from nebulus_swarm.overlord.detectors import (
     AheadOfMainDetector,

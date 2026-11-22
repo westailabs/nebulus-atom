@@ -1,6 +1,7 @@
 import pytest
-from nebulus_atom.services.skill_service import SkillService
+
 from nebulus_atom.models.web_gateway import WebGateway
+from nebulus_atom.services.skill_service import SkillService
 
 
 def test_web_gateway_import():

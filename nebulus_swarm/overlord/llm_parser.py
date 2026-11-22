@@ -6,7 +6,6 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 from openai import AsyncOpenAI
 
@@ -23,7 +22,7 @@ class ConversationEntry:
     timestamp: datetime
     user_id: str
     message: str
-    parsed_command: Optional[Command] = None
+    parsed_command: Command | None = None
 
     def format_for_prompt(self) -> str:
         """Format entry for LLM prompt context."""
@@ -58,14 +57,14 @@ class ContextStore:
         """
         self.max_entries = max_entries
         self.ttl_minutes = ttl_minutes
-        self._contexts: Dict[str, List[ConversationEntry]] = {}
+        self._contexts: dict[str, list[ConversationEntry]] = {}
 
     def add(
         self,
         channel_id: str,
         user_id: str,
         message: str,
-        command: Optional[Command] = None,
+        command: Command | None = None,
     ) -> None:
         """Store a message and its parsed result.
 
@@ -90,7 +89,7 @@ class ContextStore:
         # Prune old entries
         self._prune(channel_id)
 
-    def get_history(self, channel_id: str) -> List[ConversationEntry]:
+    def get_history(self, channel_id: str) -> list[ConversationEntry]:
         """Get recent messages for context, pruning expired entries.
 
         Args:
@@ -105,7 +104,7 @@ class ContextStore:
         self._prune(channel_id)
         return self._contexts[channel_id].copy()
 
-    def get_last_command(self, channel_id: str) -> Optional[Command]:
+    def get_last_command(self, channel_id: str) -> Command | None:
         """Get the most recent successful command.
 
         Args:
@@ -158,21 +157,21 @@ class LLMParseResult:
     """Result from LLM parsing attempt."""
 
     command: str = "UNKNOWN"
-    issue_number: Optional[int] = None
-    pr_number: Optional[int] = None
-    repo: Optional[str] = None
-    minion_id: Optional[str] = None
+    issue_number: int | None = None
+    pr_number: int | None = None
+    repo: str | None = None
+    minion_id: str | None = None
     confidence: float = 0.0
-    clarification: Optional[str] = None
+    clarification: str | None = None
 
 
 @dataclass
 class ParseResult:
     """Final parse result returned to caller."""
 
-    command: Optional[Command] = None
+    command: Command | None = None
     needs_clarification: bool = False
-    clarification_message: Optional[str] = None
+    clarification_message: str | None = None
 
     @property
     def success(self) -> bool:
@@ -241,7 +240,7 @@ class LLMCommandParser:
     def __init__(
         self,
         config: OverlordLLMConfig,
-        default_repo: Optional[str] = None,
+        default_repo: str | None = None,
     ):
         """Initialize parser.
 
@@ -253,7 +252,7 @@ class LLMCommandParser:
         self.default_repo = default_repo
 
         # LLM client
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
         # Context store
         self.context = ContextStore(
@@ -328,7 +327,7 @@ class LLMCommandParser:
             )
             return self._regex_fallback(text, channel_id, user_id)
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(
                 f"LLM timeout after {self.config.timeout}s, falling back to regex"
             )

@@ -3,16 +3,14 @@
 import os
 from unittest.mock import patch
 
-
 from nebulus_atom.settings import (
     LLMSettings,
     VectorStoreSettings,
+    get_settings,
     load_settings,
     load_yaml_config,
-    get_settings,
     reset_settings,
 )
-
 
 # ---------------------------------------------------------------------------
 # LLMSettings defaults

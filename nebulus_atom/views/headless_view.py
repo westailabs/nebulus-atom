@@ -1,6 +1,6 @@
-from typing import Dict, Any, ContextManager
-from contextlib import contextmanager
 import asyncio
+from contextlib import AbstractContextManager, contextmanager
+from typing import Any
 
 from nebulus_atom.views.base_view import BaseView
 
@@ -62,13 +62,13 @@ class HeadlessView(BaseView):
     async def print_agent_response(self, text: str):
         await self._emit("agent_response", {"text": text})
 
-    async def print_telemetry(self, metrics: Dict[str, Any]):
+    async def print_telemetry(self, metrics: dict[str, Any]):
         await self._emit("telemetry", metrics)
 
     async def print_tool_output(self, output: str, tool_name: str = ""):
         await self._emit("tool_output", {"tool": tool_name, "output": output})
 
-    async def print_plan(self, plan_data: Dict[str, Any]):
+    async def print_plan(self, plan_data: dict[str, Any]):
         await self._emit("plan_update", plan_data)
 
     async def print_error(self, message: str):
@@ -78,7 +78,7 @@ class HeadlessView(BaseView):
         await self._emit("goodbye", {})
 
     @contextmanager
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         # We can't really yield async here comfortably in a sync context manager
         # unless we just fire-and-forget the "start" and "stop" events.
         # Since the consumers are async, we might need a workaround or just

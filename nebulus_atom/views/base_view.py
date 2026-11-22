@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, ContextManager
+from contextlib import AbstractContextManager
+from typing import Any
 
 
 class BaseView(ABC):
@@ -24,7 +25,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    async def print_telemetry(self, metrics: Dict[str, Any]):
+    async def print_telemetry(self, metrics: dict[str, Any]):
         """Displays performance telemetry."""
         pass
 
@@ -34,7 +35,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    async def print_plan(self, plan_data: Dict[str, Any]):
+    async def print_plan(self, plan_data: dict[str, Any]):
         """Displays the plan status."""
         pass
 
@@ -49,7 +50,7 @@ class BaseView(ABC):
         pass
 
     @abstractmethod
-    def create_spinner(self, text: str) -> ContextManager:
+    def create_spinner(self, text: str) -> AbstractContextManager:
         """Creates a context manager for a loading spinner."""
         pass
 

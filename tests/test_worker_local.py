@@ -5,13 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from nebulus_swarm.overlord.workers.local import (
     LocalWorker,
     LocalWorkerConfig,
     load_local_worker_config,
 )
-
 
 # --- Config defaults and parsing ---
 

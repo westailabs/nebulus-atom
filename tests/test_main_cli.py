@@ -1,6 +1,7 @@
 """Tests for the CLI entry points in nebulus_atom/main.py."""
 
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
 from typer.testing import CliRunner
 
 from nebulus_atom.main import app

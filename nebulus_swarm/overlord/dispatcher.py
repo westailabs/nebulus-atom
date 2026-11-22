@@ -8,19 +8,18 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from nebulus_swarm.overlord.mirrors import MirrorManager
-from nebulus_swarm.overlord.return_parser import parse_return_block
-
 from nebulus_swarm.overlord.mission_brief import (
     build_review_prompt,
     build_worker_prompt,
     generate_mission_brief,
 )
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
+from nebulus_swarm.overlord.return_parser import parse_return_block
 from nebulus_swarm.overlord.work_queue import (
     DispatchResultRecord,
     Task,
@@ -78,13 +77,13 @@ class DispatchContext:
     task: Task
     project_config: ProjectConfig
     worker: BaseWorker
-    worktree_path: Optional[Path] = None
-    brief_path: Optional[Path] = None
-    model: Optional[str] = None
+    worktree_path: Path | None = None
+    brief_path: Path | None = None
+    model: str | None = None
     dry_run: bool = False
-    role: Optional[str] = None
-    focus_context: Optional[str] = None
-    fix_context: Optional[FixContext] = None
+    role: str | None = None
+    focus_context: str | None = None
+    fix_context: FixContext | None = None
 
 
 class Dispatcher:
@@ -98,8 +97,8 @@ class Dispatcher:
         workers: dict[str, BaseWorker],
         daily_ceiling_usd: float = 10.0,
         warning_threshold_pct: float = 80.0,
-        notification_manager: Optional[object] = None,
-        governance: Optional[GovernanceEngine] = None,
+        notification_manager: object | None = None,
+        governance: GovernanceEngine | None = None,
     ) -> None:
         self.queue = queue
         self.config = config
@@ -115,7 +114,7 @@ class Dispatcher:
         task_id: str,
         *,
         dry_run: bool = False,
-        worker_name: Optional[str] = None,
+        worker_name: str | None = None,
         skip_review: bool = False,
         role: str = "default",
     ) -> DispatchResultRecord:
@@ -245,8 +244,8 @@ class Dispatcher:
             ctx.brief_path = generate_mission_brief(ctx)
 
             # 6. Execute (Verify-Fix Pattern)
-            exec_result: Optional[WorkerResult] = None
-            review_result: Optional[WorkerResult] = None
+            exec_result: WorkerResult | None = None
+            review_result: WorkerResult | None = None
             review_status = "skipped" if dry_run else ""
 
             if not dry_run:
@@ -402,7 +401,7 @@ class Dispatcher:
                         tokens_output=exec_result.tokens_output,
                         estimated_cost_usd=cost,
                         ceiling_usd=self.daily_ceiling_usd,
-                        updated_at=datetime.now(timezone.utc).isoformat(),
+                        updated_at=datetime.now(UTC).isoformat(),
                     )
                 except Exception:
                     logger.debug("Failed to record token usage")
@@ -435,7 +434,7 @@ class Dispatcher:
             self.queue.unlock_task(task_id)
 
     def select_worker(
-        self, task: Task, explicit_name: Optional[str] = None
+        self, task: Task, explicit_name: str | None = None
     ) -> tuple[BaseWorker, str]:
         """Select the best worker for a task based on complexity and availability.
 
@@ -579,7 +578,7 @@ class Dispatcher:
         task_id: str,
         worker_id: str,
         ctx: DispatchContext,
-        exec_result: Optional[WorkerResult],
+        exec_result: WorkerResult | None,
         reason: str,
         review_status: str = "",
     ) -> DispatchResultRecord:

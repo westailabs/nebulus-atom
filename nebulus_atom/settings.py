@@ -10,7 +10,6 @@ Loads settings from (in order of precedence, highest first):
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass
@@ -132,8 +131,8 @@ def _apply_env_overrides(settings: AtomSettings) -> None:
 
 
 def load_settings(
-    user_config_path: Optional[Path] = None,
-    project_config_path: Optional[Path] = None,
+    user_config_path: Path | None = None,
+    project_config_path: Path | None = None,
 ) -> AtomSettings:
     """Load settings from config files and env vars.
 
@@ -175,7 +174,7 @@ def load_settings(
 
 
 # Module-level cached instance
-_settings: Optional[AtomSettings] = None
+_settings: AtomSettings | None = None
 
 
 def get_settings() -> AtomSettings:

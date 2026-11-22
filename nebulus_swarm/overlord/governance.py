@@ -12,7 +12,6 @@ import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_swarm.overlord.registry import OverlordConfig, ProjectConfig
 from nebulus_swarm.overlord.work_queue import Task, WorkQueue
@@ -51,7 +50,7 @@ class GovernanceEngine:
         self,
         config: OverlordConfig,
         queue: WorkQueue,
-        workspace_root: Optional[Path] = None,
+        workspace_root: Path | None = None,
     ) -> None:
         self.config = config
         self.queue = queue
@@ -98,7 +97,7 @@ class GovernanceEngine:
 
     def _check_root_workspace(
         self, project_config: ProjectConfig
-    ) -> Optional[GovernanceViolation]:
+    ) -> GovernanceViolation | None:
         """Block dispatch if project path resolves to the workspace root."""
         if not self.workspace_root:
             return None
@@ -125,7 +124,7 @@ class GovernanceEngine:
 
         return None
 
-    def _check_concurrency(self, task: Task) -> Optional[GovernanceViolation]:
+    def _check_concurrency(self, task: Task) -> GovernanceViolation | None:
         """Block dispatch if another task for the same project is in-flight."""
         dispatched = self.queue.list_tasks(status="dispatched")
         for active in dispatched:
@@ -144,7 +143,7 @@ class GovernanceEngine:
 
     def _check_branch_policy(
         self, project_config: ProjectConfig
-    ) -> Optional[GovernanceViolation]:
+    ) -> GovernanceViolation | None:
         """Warn if the project's branch doesn't follow naming conventions."""
         if project_config.branch_model != "develop-main":
             return None
@@ -179,7 +178,7 @@ class GovernanceEngine:
 
         return None
 
-    def _check_strategic_drift(self, task: Task) -> Optional[GovernanceViolation]:
+    def _check_strategic_drift(self, task: Task) -> GovernanceViolation | None:
         """Flag tasks that may not align with business priorities."""
         if not self._priority_keywords:
             return None
@@ -202,7 +201,7 @@ class GovernanceEngine:
 
     def check_conflict(
         self, task: Task, active_tasks: list[Task]
-    ) -> Optional[GovernanceViolation]:
+    ) -> GovernanceViolation | None:
         """Detect potential file conflicts between a task and active dispatches.
 
         Args:

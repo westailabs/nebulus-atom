@@ -1,16 +1,15 @@
 """Skill schema definitions."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 
 @dataclass
 class SkillTriggers:
     """Triggers that determine when a skill applies."""
 
-    keywords: List[str] = field(default_factory=list)
-    file_patterns: List[str] = field(default_factory=list)
-    labels: List[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
+    file_patterns: list[str] = field(default_factory=list)
+    labels: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -29,9 +28,9 @@ class Skill:
     description: str
     instructions: str
     version: str = "1.0.0"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     triggers: SkillTriggers = field(default_factory=SkillTriggers)
-    examples: List[SkillExample] = field(default_factory=list)
+    examples: list[SkillExample] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
@@ -81,8 +80,8 @@ class Skill:
         self,
         title: str,
         body: str,
-        labels: List[str],
-        files: Optional[List[str]] = None,
+        labels: list[str],
+        files: list[str] | None = None,
     ) -> bool:
         """Check if this skill matches an issue.
 

@@ -5,7 +5,6 @@ import json
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class ScopeConfig:
     """Configuration for Minion write scope."""
 
     mode: ScopeMode = ScopeMode.UNRESTRICTED
-    allowed_patterns: List[str] = field(default_factory=list)
+    allowed_patterns: list[str] = field(default_factory=list)
 
     @classmethod
     def unrestricted(cls) -> "ScopeConfig":

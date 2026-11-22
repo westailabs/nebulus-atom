@@ -6,15 +6,14 @@ for more reliable handling of complex tasks.
 """
 
 import re
-from typing import List, Optional, Tuple
 
 from nebulus_atom.models.cognition import (
-    TaskComplexity,
-    ReasoningStep,
     ClarificationQuestion,
     CognitionResult,
-    ThoughtRecord,
+    ReasoningStep,
     SelfCritiqueResult,
+    TaskComplexity,
+    ThoughtRecord,
 )
 from nebulus_atom.models.failure_memory import FailureContext
 from nebulus_atom.utils.logger import setup_logger
@@ -126,13 +125,13 @@ class CognitionService:
 
     def __init__(self) -> None:
         """Initialize the cognition service."""
-        self._thought_history: List[ThoughtRecord] = []
+        self._thought_history: list[ThoughtRecord] = []
 
     def analyze_task(
         self,
         user_input: str,
-        context: Optional[str] = None,
-        failure_context: Optional[FailureContext] = None,
+        context: str | None = None,
+        failure_context: FailureContext | None = None,
     ) -> CognitionResult:
         """
         Analyze a task to determine complexity and approach.
@@ -235,7 +234,7 @@ class CognitionService:
         else:
             return TaskComplexity.COMPLEX
 
-    def _detect_ambiguity(self, input_lower: str) -> Tuple[float, List[str]]:
+    def _detect_ambiguity(self, input_lower: str) -> tuple[float, list[str]]:
         """
         Detect ambiguity in the task description.
 
@@ -281,7 +280,7 @@ class CognitionService:
         user_input: str,
         complexity: TaskComplexity,
         ambiguity_score: float,
-    ) -> List[ReasoningStep]:
+    ) -> list[ReasoningStep]:
         """Generate a reasoning chain for the task."""
         steps = []
 
@@ -351,7 +350,7 @@ class CognitionService:
 
     def _identify_risks(
         self, input_lower: str, complexity: TaskComplexity
-    ) -> List[str]:
+    ) -> list[str]:
         """Identify potential risks in the task."""
         risks = []
 
@@ -382,8 +381,8 @@ class CognitionService:
         self,
         user_input: str,
         complexity: TaskComplexity,
-        ambiguous_phrases: List[str],
-    ) -> List[ClarificationQuestion]:
+        ambiguous_phrases: list[str],
+    ) -> list[ClarificationQuestion]:
         """Generate clarification questions for ambiguous tasks."""
         questions = []
 
@@ -531,7 +530,7 @@ class CognitionService:
         thought_type: str,
         content: str,
         confidence: float = 1.0,
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
     ) -> ThoughtRecord:
         """
         Record a thought for telemetry and debugging.
@@ -559,15 +558,13 @@ class CognitionService:
 
         return record
 
-    def get_thought_history(
-        self, session_id: Optional[str] = None
-    ) -> List[ThoughtRecord]:
+    def get_thought_history(self, session_id: str | None = None) -> list[ThoughtRecord]:
         """Get thought history, optionally filtered by session."""
         if session_id:
             return [t for t in self._thought_history if t.session_id == session_id]
         return list(self._thought_history)
 
-    def clear_thought_history(self, session_id: Optional[str] = None) -> None:
+    def clear_thought_history(self, session_id: str | None = None) -> None:
         """Clear thought history, optionally for a specific session."""
         if session_id:
             self._thought_history = [

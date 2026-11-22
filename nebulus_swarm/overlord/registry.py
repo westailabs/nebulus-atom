@@ -9,10 +9,8 @@ from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from nebulus_atom.settings import load_yaml_config
-
 
 # Valid values for role and autonomy fields
 VALID_ROLES = frozenset(
@@ -106,7 +104,7 @@ class CostControlConfig:
 class OverlordConfig:
     """Top-level Overlord configuration."""
 
-    workspace_root: Optional[Path] = None
+    workspace_root: Path | None = None
     projects: dict[str, ProjectConfig] = field(default_factory=dict)
     autonomy_global: str = "cautious"
     autonomy_overrides: dict[str, str] = field(default_factory=dict)
@@ -118,7 +116,7 @@ class OverlordConfig:
     cost_controls: CostControlConfig = field(default_factory=CostControlConfig)
 
 
-def load_config(path: Optional[Path] = None) -> OverlordConfig:
+def load_config(path: Path | None = None) -> OverlordConfig:
     """Load Overlord config from YAML.
 
     Args:
@@ -215,7 +213,7 @@ def load_config(path: Optional[Path] = None) -> OverlordConfig:
     # Parse workspace_root — explicit from YAML or auto-detected from project paths
     raw_ws = raw.get("workspace_root")
     if raw_ws:
-        workspace_root: Optional[Path] = Path(str(raw_ws)).expanduser().resolve()
+        workspace_root: Path | None = Path(str(raw_ws)).expanduser().resolve()
     elif projects:
         # Auto-detect: common parent of all project paths
         paths = [p.path for p in projects.values()]

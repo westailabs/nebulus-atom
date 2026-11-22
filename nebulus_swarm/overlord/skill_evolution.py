@@ -5,7 +5,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 from nebulus_swarm.overlord.proposals import (
     EnhancementProposal,
@@ -34,15 +34,15 @@ class SkillSpec:
     name: str
     description: str
     category: SkillCategory
-    inputs: List[
-        Dict[str, str]
+    inputs: list[
+        dict[str, str]
     ]  # [{"name": "repo_path", "type": "str", "description": "..."}]
-    outputs: List[
-        Dict[str, str]
+    outputs: list[
+        dict[str, str]
     ]  # [{"name": "result", "type": "str", "description": "..."}]
-    constraints: List[str]  # ["Must not modify files outside scope", ...]
-    test_cases: List[
-        Dict[str, Any]
+    constraints: list[str]  # ["Must not modify files outside scope", ...]
+    test_cases: list[
+        dict[str, Any]
     ]  # [{"input": {...}, "expected_output": {...}, "description": "..."}]
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = field(default_factory=datetime.now)
@@ -65,8 +65,8 @@ class SkillValidationResult:
 
     spec_id: str
     passed: bool
-    test_results: List[
-        Dict[str, Any]
+    test_results: list[
+        dict[str, Any]
     ]  # [{"test_case": ..., "passed": bool, "error": Optional[str]}]
     feedback: str = ""
 

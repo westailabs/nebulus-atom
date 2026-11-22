@@ -1,19 +1,20 @@
-import os
 import asyncio
+import os
+
 import typer
-from typing import List, Optional
-from nebulus_atom.services.doc_service import DocService
-from rich.markdown import Markdown
 from rich.console import Console
+from rich.markdown import Markdown
+
+from nebulus_atom.services.doc_service import DocService
 
 # Silence HuggingFace warnings
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
-from nebulus_atom.commands.overlord_commands import overlord_app
-from nebulus_atom.commands.queue_commands import queue_app
 from nebulus_atom.commands.dispatch_commands import dispatch_app
 from nebulus_atom.commands.focus_commands import focus_app
+from nebulus_atom.commands.overlord_commands import overlord_app
+from nebulus_atom.commands.queue_commands import queue_app
 
 app = typer.Typer(invoke_without_command=True)
 app.add_typer(overlord_app, name="overlord")
@@ -28,7 +29,7 @@ app.add_typer(mirror_app, name="mirror")
 
 @mirror_app.command("init")
 def mirror_init(
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Init a single project mirror"
     ),
 ) -> None:
@@ -65,7 +66,7 @@ def mirror_init(
 
 @mirror_app.command("sync")
 def mirror_sync(
-    project: Optional[str] = typer.Option(
+    project: str | None = typer.Option(
         None, "--project", "-p", help="Sync a single project mirror"
     ),
 ) -> None:
@@ -156,7 +157,7 @@ def main(ctx: typer.Context):
 
 @app.command()
 def start(
-    prompt: Optional[List[str]] = typer.Argument(
+    prompt: list[str] | None = typer.Argument(
         None, help="Initial prompt to execute immediately"
     ),
     session_id: str = typer.Option("default", help="Session ID for persistence"),
@@ -167,11 +168,11 @@ def start(
     _start_agent(prompt, session_id)
 
 
-def _start_agent(prompt: Optional[List[str]], session_id: str = "default"):
+def _start_agent(prompt: list[str] | None, session_id: str = "default"):
     initial_prompt = " ".join(prompt) if prompt else None
 
-    from nebulus_atom.views.cli_view import CLIView
     from nebulus_atom.controllers.agent_controller import AgentController
+    from nebulus_atom.views.cli_view import CLIView
 
     view = CLIView()
     controller = AgentController(view=view)
@@ -185,7 +186,7 @@ def _start_agent(prompt: Optional[List[str]], session_id: str = "default"):
 @app.command()
 def docs(
     action: str = typer.Argument(..., help="Action: 'list' or 'read'"),
-    filename: Optional[str] = typer.Argument(None, help="Filename to read"),
+    filename: str | None = typer.Argument(None, help="Filename to read"),
 ):
     """
     Access embedded documentation.
@@ -225,7 +226,7 @@ def docs(
 @app.command("review-pr")
 def review_pr(
     pr_number: int = typer.Argument(..., help="Pull request number to review"),
-    repo: Optional[str] = typer.Option(
+    repo: str | None = typer.Option(
         None, help="Repository in owner/name format (auto-detected from git remote)"
     ),
     no_checks: bool = typer.Option(
@@ -300,7 +301,7 @@ def proposals(
     action: str = typer.Argument(
         ..., help="Action: 'list', 'show', 'approve', or 'reject'"
     ),
-    proposal_id: Optional[str] = typer.Argument(
+    proposal_id: str | None = typer.Argument(
         None, help="Proposal ID (for show/approve/reject)"
     ),
 ):
@@ -346,10 +347,8 @@ def proposals(
 @app.command("audit")
 def audit(
     action: str = typer.Argument(..., help="Action: 'verify' or 'export'"),
-    task_id: Optional[str] = typer.Option(
-        None, "--task", "-t", help="Filter by task ID"
-    ),
-    output: Optional[str] = typer.Option(
+    task_id: str | None = typer.Option(None, "--task", "-t", help="Filter by task ID"),
+    output: str | None = typer.Option(
         None, "--output", "-o", help="Output file for export"
     ),
 ):
@@ -357,6 +356,7 @@ def audit(
     Manage the audit trail for compliance.
     """
     from pathlib import Path
+
     from nebulus_swarm.overlord.audit_trail import (
         AuditTrail,
         load_or_create_signing_key,
@@ -399,7 +399,7 @@ def audit(
 
 @app.command("orchestrate")
 def orchestrate(
-    goal: Optional[List[str]] = typer.Argument(
+    goal: list[str] | None = typer.Argument(
         None, help="Goal or task description to orchestrate"
     ),
     template: str = typer.Option(
@@ -411,7 +411,7 @@ def orchestrate(
     list_templates_flag: bool = typer.Option(
         False, "--list-templates", "-l", help="List available workflow templates"
     ),
-    workflow_file: Optional[str] = typer.Option(
+    workflow_file: str | None = typer.Option(
         None, "--workflow", "-w", help="Path to custom workflow YAML file"
     ),
 ):
@@ -425,9 +425,10 @@ def orchestrate(
       atom orchestrate "research topic" --template research-and-draft
     """
     import asyncio
+
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
+    from rich.table import Table
 
     console = Console()
 
@@ -463,9 +464,9 @@ def orchestrate(
     goal_text = " ".join(goal)
 
     async def run():
+        from nebulus_atom.controllers.agent_controller import AgentController
         from nebulus_atom.orchestrator.engine import WorkflowEngine
         from nebulus_atom.orchestrator.loader import load_workflow
-        from nebulus_atom.controllers.agent_controller import AgentController
         from nebulus_atom.views.cli_view import CLIView
 
         # Bootstrap enough of the agent to get an OpenAI service

@@ -40,17 +40,15 @@ steps:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
 
 import yaml
 
 from .models import Workflow, WorkflowStep
 
-
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
-def load_workflow(source: Union[str, Path]) -> Workflow:
+def load_workflow(source: str | Path) -> Workflow:
     """
     Load a workflow from a YAML file or name.
 
@@ -85,7 +83,7 @@ def list_templates() -> list[str]:
     return [p.stem for p in TEMPLATES_DIR.glob("*.yml")]
 
 
-def _resolve_path(source: Union[str, Path]) -> Path:
+def _resolve_path(source: str | Path) -> Path:
     path = Path(source)
 
     # Direct path

@@ -1,5 +1,6 @@
 import httpx
 from openai import AsyncOpenAI
+
 from nebulus_atom.config import Config
 from nebulus_atom.utils.logger import setup_logger
 

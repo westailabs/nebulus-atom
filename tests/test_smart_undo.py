@@ -1,7 +1,9 @@
-import time
-import pytest
 import os
 import shutil
+import time
+
+import pytest
+
 from nebulus_atom.services.checkpoint_service import CheckpointService
 
 
@@ -43,14 +45,16 @@ def test_checkpoint_lifecycle(clean_env):
     with open("test_file.txt", "w") as f:
         f.write("Modified Content")
 
-    assert open("test_file.txt").read() == "Modified Content"
+    with open("test_file.txt") as f:
+        assert f.read() == "Modified Content"
 
     # 4. Rollback
     result = service.rollback_checkpoint("v1")
     assert "Rollback successful" in result
 
     # 5. Verify Restore
-    assert open("test_file.txt").read() == "Original Content"
+    with open("test_file.txt") as f:
+        assert f.read() == "Original Content"
 
 
 def test_list_checkpoints(clean_env):

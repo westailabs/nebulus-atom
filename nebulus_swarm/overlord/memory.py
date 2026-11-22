@@ -6,6 +6,8 @@ copy when nebulus-core is not installed.
 
 from __future__ import annotations
 
+from datetime import UTC
+
 try:
     from nebulus_core.memory.overlord import (
         DEFAULT_DB_PATH,
@@ -18,11 +20,11 @@ except ImportError:
     import json
     import sqlite3
     import uuid
+    from collections.abc import Generator
     from contextlib import contextmanager
     from dataclasses import dataclass, field
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
     from pathlib import Path
-    from typing import Generator, Optional
 
     @dataclass
     class MemoryEntry:
@@ -31,7 +33,7 @@ except ImportError:
         id: str
         timestamp: str
         category: str
-        project: Optional[str]
+        project: str | None
         content: str
         metadata: dict = field(default_factory=dict)
 
@@ -53,7 +55,7 @@ except ImportError:
     class OverlordMemory:
         """Cross-project memory store backed by SQLite."""
 
-        def __init__(self, db_path: Optional[Path] = None) -> None:
+        def __init__(self, db_path: Path | None = None) -> None:
             """Initialize the memory store.
 
             Args:
@@ -114,7 +116,7 @@ except ImportError:
             self,
             category: str,
             content: str,
-            project: Optional[str] = None,
+            project: str | None = None,
             **metadata: object,
         ) -> str:
             """Store an observation.
@@ -138,7 +140,7 @@ except ImportError:
                 )
 
             entry_id = str(uuid.uuid4())
-            timestamp = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(UTC).isoformat()
 
             with self._get_connection() as conn:
                 conn.execute(
@@ -161,8 +163,8 @@ except ImportError:
         def search(
             self,
             query: str,
-            category: Optional[str] = None,
-            project: Optional[str] = None,
+            category: str | None = None,
+            project: str | None = None,
             limit: int = 20,
         ) -> list[MemoryEntry]:
             """Search memories by content text with optional filters.
@@ -254,9 +256,7 @@ except ImportError:
             Returns:
                 Number of entries deleted.
             """
-            cutoff = (
-                datetime.now(timezone.utc) - timedelta(days=older_than_days)
-            ).isoformat()
+            cutoff = (datetime.now(UTC) - timedelta(days=older_than_days)).isoformat()
 
             with self._get_connection() as conn:
                 cursor = conn.execute(

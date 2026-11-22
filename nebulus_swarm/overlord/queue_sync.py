@@ -10,7 +10,6 @@ import json
 import logging
 import subprocess
 from dataclasses import dataclass, field
-from typing import Optional
 
 from nebulus_swarm.overlord.registry import OverlordConfig
 from nebulus_swarm.overlord.work_queue import WorkQueue
@@ -33,8 +32,8 @@ def sync_github_issues(
     config: OverlordConfig,
     *,
     label: str = "nebulus-ready",
-    project_filter: Optional[str] = None,
-    token_budget: Optional[int] = None,
+    project_filter: str | None = None,
+    token_budget: int | None = None,
 ) -> SyncResult:
     """Sync GitHub issues into the work queue.
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -1071,7 +1071,7 @@ def _make_memory_entries(
         entries.append(
             MemoryEntry(
                 id=f"uuid-{i}",
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 category="dispatch",
                 project=project,
                 content=f"[{status.upper()}] Task {i}",

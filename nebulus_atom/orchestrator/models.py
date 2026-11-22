@@ -13,7 +13,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class JobStatus(Enum):
@@ -40,11 +40,11 @@ class WorkflowStep:
     id: str
     agent: str  # e.g. "atom", "moto", "cael"
     prompt_template: str  # may reference {{input}} and {{step_id.output}}
-    depends_on: List[str] = field(default_factory=list)
-    model_hint: Optional[str] = None  # override model routing
+    depends_on: list[str] = field(default_factory=list)
+    model_hint: str | None = None  # override model routing
     timeout_seconds: int = 300
 
-    def render_prompt(self, context: Dict[str, Any]) -> str:
+    def render_prompt(self, context: dict[str, Any]) -> str:
         """Render prompt template with context variables."""
         rendered = self.prompt_template
         for key, value in context.items():
@@ -58,13 +58,13 @@ class Workflow:
 
     name: str
     description: str = ""
-    steps: List[WorkflowStep] = field(default_factory=list)
+    steps: list[WorkflowStep] = field(default_factory=list)
     version: str = "1.0"
 
-    def get_step(self, step_id: str) -> Optional[WorkflowStep]:
+    def get_step(self, step_id: str) -> WorkflowStep | None:
         return next((s for s in self.steps if s.id == step_id), None)
 
-    def get_ready_steps(self, completed_ids: set) -> List[WorkflowStep]:
+    def get_ready_steps(self, completed_ids: set) -> list[WorkflowStep]:
         """Return steps whose dependencies are all satisfied."""
         return [
             s
@@ -73,7 +73,7 @@ class Workflow:
             and all(dep in completed_ids for dep in s.depends_on)
         ]
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate DAG for cycles and missing dependencies. Returns list of errors."""
         errors = []
         step_ids = {s.id for s in self.steps}
@@ -117,14 +117,14 @@ class StepResult:
 
     step_id: str
     status: StepStatus = StepStatus.PENDING
-    output: Optional[str] = None
-    error: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    model_used: Optional[str] = None
+    output: str | None = None
+    error: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    model_used: str | None = None
 
     @property
-    def duration_seconds(self) -> Optional[float]:
+    def duration_seconds(self) -> float | None:
         if self.started_at and self.completed_at:
             return (self.completed_at - self.started_at).total_seconds()
         return None
@@ -137,14 +137,14 @@ class Job:
     workflow_name: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     status: JobStatus = JobStatus.PENDING
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    step_results: Dict[str, StepResult] = field(default_factory=dict)
+    inputs: dict[str, Any] = field(default_factory=dict)
+    step_results: dict[str, StepResult] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    error: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error: str | None = None
 
-    def get_context(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    def get_context(self, inputs: dict[str, Any]) -> dict[str, Any]:
         """Build template context from inputs + completed step outputs."""
         context = dict(inputs)
         context["input"] = context.get("goal", "")  # convenience alias

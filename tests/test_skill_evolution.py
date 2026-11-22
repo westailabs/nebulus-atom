@@ -10,9 +10,9 @@ from nebulus_swarm.overlord.proposals import (
 )
 from nebulus_swarm.overlord.skill_evolution import (
     SkillCategory,
+    SkillEvolution,
     SkillSpec,
     SkillValidationResult,
-    SkillEvolution,
 )
 
 

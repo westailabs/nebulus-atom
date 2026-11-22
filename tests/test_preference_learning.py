@@ -1,5 +1,7 @@
-import pytest
 import os
+
+import pytest
+
 from nebulus_atom.services.preference_service import PreferenceService
 
 

@@ -1,7 +1,6 @@
 import os
 import tarfile
 import time
-from typing import List, Dict
 
 
 class CheckpointService:
@@ -23,9 +22,9 @@ class CheckpointService:
     def __init__(self):
         if not os.path.exists(self.CHECKPOINT_DIR):
             os.makedirs(self.CHECKPOINT_DIR)
-        self.checkpoints: List[Dict] = self._load_checkpoints()
+        self.checkpoints: list[dict] = self._load_checkpoints()
 
-    def _load_checkpoints(self) -> List[Dict]:
+    def _load_checkpoints(self) -> list[dict]:
         """Scans the checkpoint directory for existing backups."""
         backups = []
         if not os.path.exists(self.CHECKPOINT_DIR):

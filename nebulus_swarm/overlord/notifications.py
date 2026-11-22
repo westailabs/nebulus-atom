@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from nebulus_swarm.overlord.slack_bot import SlackBot
@@ -27,7 +27,7 @@ class Notification:
 
     def __post_init__(self) -> None:
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -48,7 +48,7 @@ class NotificationManager:
 
     def __init__(
         self,
-        slack_bot: Optional[SlackBot] = None,
+        slack_bot: SlackBot | None = None,
         urgent_enabled: bool = True,
         digest_enabled: bool = True,
     ):
@@ -142,7 +142,7 @@ class NotificationManager:
         Returns:
             Formatted digest string for Slack.
         """
-        now = datetime.now(timezone.utc).strftime("%b %d, %Y")
+        now = datetime.now(UTC).strftime("%b %d, %Y")
         s = self.stats
 
         lines = [f"Overlord Daily Digest — {now}", ""]
