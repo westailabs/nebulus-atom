@@ -2,6 +2,7 @@
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import click
 from typer.testing import CliRunner
 
 from nebulus_atom.main import app
@@ -181,7 +182,9 @@ class TestMainCallback:
     def test_start_help(self):
         result = runner.invoke(app, ["start", "--help"])
         assert result.exit_code == 0
-        assert "session-id" in result.output
+        # typer forces colored help when GITHUB_ACTIONS is set; the ANSI codes
+        # split "--session-id", so compare against the unstyled text.
+        assert "session-id" in click.unstyle(result.output)
 
     def test_docs_help(self):
         result = runner.invoke(app, ["docs", "--help"])
